@@ -22,4 +22,13 @@ function draw() {
 
 draw();
 
-new MapBinReader().decodeFile('../testData/6-ReflectionD-B.bin');
+async function run() {
+  // const map = await new MapBinReader().decodeFile('../testData/0-Prologue.bin');
+  const map = await new MapBinReader().decodeFile(
+    '../testData/6-ReflectionD-B.bin',
+  );
+
+  console.log(map);
+}
+
+run();

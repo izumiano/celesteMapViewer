@@ -1,3 +1,5 @@
+import {CelesteMap} from './mapTypes/celesteMap.js';
+
 export class MapBinReader {
   #bytes = new Uint8Array(0);
   #index = 0;
@@ -21,9 +23,10 @@ export class MapBinReader {
       lookup.push(this.readString());
     }
 
-    const ret = this.decodeElement(lookup);
+    const ret: {[key: string]: any} = this.decodeElement(lookup);
     ret._package = modPackage;
-    console.debug(ret);
+
+    return new CelesteMap(ret);
   }
 
   decodeValue(lookup: string[], typ: number) {
