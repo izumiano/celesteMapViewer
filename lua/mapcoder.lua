@@ -86,7 +86,6 @@ function mapcoder.decodeFile(path, header)
     local reader = binaryReader(writer)
 
 		local readHeader = reader:readString()
-		print(readHeader)
     if #header > 0 and readHeader ~= header then
         return false, "Invalid Celeste map file"
     end
