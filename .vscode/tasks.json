@@ -1,0 +1,11 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "lua test",
+      "type": "shell",
+      "command": "cd lua;lua test.lua",
+      "problemMatcher": []
+    }
+  ]
+}
