@@ -87,8 +87,8 @@ export class MapBinReader {
   }
 
   twosCompliment(n: number, power: number) {
-    if (n >= (2 ^ (power - 1))) {
-      return (n - 2) ^ power;
+    if (n >= 2 ** (power - 1)) {
+      return n - 2 ** power;
     } else {
       return n;
     }
