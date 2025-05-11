@@ -4,10 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Map Viewer</title>
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header id="header"></header>
-    <canvas id="canvas"></canvas>
+    <div class="flex">
+      <header id="header"></header>
+      <div id="canvasContainer">
+        <canvas id="canvas"></canvas>
+      </div>
+    </div>
 
     <script src="main.js" type="module"></script>
   </body>

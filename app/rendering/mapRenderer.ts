@@ -23,7 +23,7 @@ export class MapRenderer {
   draw() {
     header.innerText = this.map.package;
 
-    this.drawLevel(this.map.levels[94]);
+    this.drawLevel(this.map.levels[2]); // 91
   }
 
   drawLevel(level: Level) {
