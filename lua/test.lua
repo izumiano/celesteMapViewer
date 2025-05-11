@@ -1,4 +1,5 @@
 local mapcoder = require("mapcoder")
+local tiles = require("structs.tiles")
 
 local function dump(o)
 	if type(o) == 'table' then
@@ -13,5 +14,15 @@ local function dump(o)
 	end
 end
 
-local path = "C:\\Users\\elibr\\Dev\\Web\\celesteMapViewer\\testData\\6-ReflectionD-B.bin";
-print(dump(mapcoder.decodeFile(path)))
+local path = "C:\\Users\\elibr\\Dev\\Web\\celesteMapViewer\\testData\\0-Prologue.bin";
+local mapData = mapcoder.decodeFile(path)
+-- print(dump(mapData))
+local first = mapData.__children[1]
+-- print(first.__name)
+local second = first.__children[1]
+-- print(second.name)
+local third = second.__children[1]
+-- print(third.__name)
+-- print(dump(third))
+
+print(dump(tiles.decode(third)))
