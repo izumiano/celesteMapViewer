@@ -26,7 +26,11 @@ export class TileMatrix {
       line += '0'.repeat(extraLength);
 
       for (const char of line) {
-        this.#matrix.push(Number(char));
+        let num = parseInt(char);
+        if (isNaN(num)) {
+          num = char.charCodeAt(0) - 87;
+        }
+        this.#matrix.push(num);
       }
     }
   }
@@ -35,14 +39,15 @@ export class TileMatrix {
     return this.#matrix[x + y * this.#width];
   }
 
-  toStr() {
-    let str = '';
+  toArr() {
+    const ret: number[][] = [];
     for (let y = 0; y < this.height; y++) {
+      const arr: number[] = [];
       for (let x = 0; x < this.width; x++) {
-        str += this.get(x, y);
+        arr.push(this.get(x, y));
       }
-      str += '\n';
+      ret.push(arr);
     }
-    return str;
+    return ret;
   }
 }
