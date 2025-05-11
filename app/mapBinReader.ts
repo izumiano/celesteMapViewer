@@ -3,15 +3,92 @@ export class MapBinReader {
   #index = 0;
 
   async decodeFile(file: RequestInfo) {
-    let buffer = await (await fetch(file)).arrayBuffer();
+    const buffer = await (await fetch(file)).arrayBuffer();
     this.#bytes = new Uint8Array(buffer);
 
     console.log(this.#bytes);
-    for (let i = 0; i < 100; i++) {
-      console.log(this.readString());
+    const header = this.readString();
+    if (header !== 'CELESTE MAP') {
+      throw new Error('Invalid Celeste Map File');
     }
 
-    console.log(this.readString());
+    const modPackage = this.readString();
+
+    const lookupLength = this.readShort();
+    let lookup: string[] = [];
+
+    for (let i = 0; i < lookupLength; i++) {
+      lookup.push(this.readString());
+    }
+
+    const ret = this.decodeElement(lookup);
+    ret._package = modPackage;
+    console.debug(ret);
+  }
+
+  decodeValue(lookup: string[], typ: number) {
+    switch (typ) {
+      case 0:
+        return this.readBool();
+      case 1:
+        return this.readByte();
+      case 2:
+        return this.readSignedShort();
+      case 3:
+        return this.readSignedLong();
+      case 4:
+        return this.readFloat();
+      case 5:
+        return this.look(lookup);
+      case 6:
+        return this.readString();
+      case 7:
+        return this.readRunLengthEncoded();
+      default:
+        throw new Error(`unsupported value decoder ${typ}`);
+    }
+  }
+
+  decodeElement(lookup: string[]) {
+    const name = this.look(lookup);
+    const element: {[key: string]: any} = {__name: name};
+    const attributeCount = this.readByte();
+
+    for (let i = 0; i < attributeCount; i++) {
+      const key = this.look(lookup);
+      const typ = this.readByte();
+
+      const value = this.decodeValue(lookup, typ);
+
+      if (key) {
+        element[key] = value;
+      }
+    }
+
+    const elementCount = this.readShort();
+
+    if (elementCount > 0) {
+      element.__children = [];
+
+      for (let i = 0; i < elementCount; i++) {
+        element.__children.push(this.decodeElement(lookup));
+      }
+    }
+
+    // console.debug(element);
+    return element;
+  }
+
+  look(lookup: string[]) {
+    return lookup[this.readShort()];
+  }
+
+  twosCompliment(n: number, power: number) {
+    if (n >= (2 ^ (power - 1))) {
+      return (n - 2) ^ power;
+    } else {
+      return n;
+    }
   }
 
   read(length: number): Uint8Array {
@@ -45,14 +122,88 @@ export class MapBinReader {
     }
   }
 
+  readBool(): boolean {
+    const ret = this.readByte() != 0;
+    return ret;
+  }
+
   readString(): string {
     let length = this.readVariableLength();
     let res = this.read(length);
 
-    return this.bytesToString(res);
+    const ret = this.bytesToString(res);
+    return ret;
   }
 
   bytesToString(bytes: Uint8Array): string {
     return String.fromCharCode(...bytes);
+  }
+
+  readFloat() {
+    const [b4, b3, b2, b1] = this.read(4);
+    const exponent = (b1 % 128) * 2 + Math.floor(b2 / 128);
+
+    if (exponent == 0) {
+      return 0.0;
+    }
+
+    const sign = b1 > 127 ? -1 : 1;
+    let mantissa = ((b2 % 128) * 256 + b3) * 256 + b4;
+
+    // Infinity/NaN check
+    // Eight 1s in exponent is infinity/NaN
+    if (exponent == 255) {
+      if (mantissa == 0) {
+        return Number.POSITIVE_INFINITY * sign;
+      } else {
+        return 0 / 0;
+      }
+    }
+
+    mantissa = (this.ldExp(mantissa, -23) + 1) * sign;
+
+    const ret = this.ldExp(mantissa, exponent - 127);
+    return ret;
+  }
+
+  readShort() {
+    let [b1, b2] = this.read(2);
+
+    const ret = b1 + b2 * 256;
+    return ret;
+  }
+
+  readSignedShort() {
+    const ret = this.twosCompliment(this.readShort(), 16);
+    return ret;
+  }
+
+  readLong() {
+    const [b1, b2, b3, b4] = this.read(4);
+
+    const ret = b1 + b2 * 256 + b3 * 65536 + b4 * 16777216;
+    return ret;
+  }
+
+  readSignedLong() {
+    const ret = this.twosCompliment(this.readLong(), 32);
+    return ret;
+  }
+
+  readRunLengthEncoded() {
+    const bytes = this.readShort();
+    let ret: string = '';
+
+    for (let i = 0; i < bytes; i += 2) {
+      const [times, char] = this.read(2);
+
+      ret += String.fromCharCode(char).repeat(times);
+    }
+
+    return ret;
+  }
+
+  ldExp(m: number, n: number) {
+    return (m * 2) ^ n;
   }
 }
