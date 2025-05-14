@@ -1,27 +1,21 @@
 import {CelesteMap} from '../mapTypes/celesteMap.js';
 import {Level} from '../mapTypes/level.js';
 import {TileMatrix} from '../mapTypes/tileMatrix.js';
+import {Bounds} from '../utils/bounds.js';
+import {Vector2} from '../utils/vector2.js';
 
-const scale = 0.5 * 2 ** 1;
-const tileMultiplier = 8;
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
-const header = document.getElementById('header')!;
 
 export class MapRenderer {
+  scale = 2 ** 0;
   map: CelesteMap;
   ctx: CanvasRenderingContext2D;
 
-  minWidth: number;
-  maxWidth: number;
-  minHeight: number;
-  maxHeight: number;
+  bounds: Bounds;
 
-  constructor(map: CelesteMap) {
+  constructor(map: CelesteMap, bounds: Bounds) {
     this.map = map;
-    [this.minWidth, this.maxWidth, this.minHeight, this.maxHeight] =
-      this.calculateBounds();
-    canvas.width = this.maxWidth - this.minWidth;
-    canvas.height = this.maxHeight - this.minHeight;
+    this.bounds = bounds;
     const ctx = canvas.getContext('2d');
     if (ctx === null) {
       throw new Error('ctx was null');
@@ -30,44 +24,15 @@ export class MapRenderer {
     this.ctx = ctx;
   }
 
-  draw() {
-    header.innerText = this.map.package;
+  draw(position: Vector2) {
+    this.ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (const level of this.map.levels) {
-      this.drawLevel(level);
+      this.drawLevel(level, position);
     }
-
-    // this.drawLevel(this.map.levels[2]); // 91
   }
 
-  calculateBounds() {
-    let maxWidth = 0;
-    let minWidth = 0;
-    let maxHeight = 0;
-    let minHeight = 0;
-    for (const level of this.map.levels) {
-      const tiles = level.solids;
-      if (!tiles) {
-        console.error('Tiles was undefined');
-        continue;
-      }
-
-      maxWidth = Math.max(
-        maxWidth,
-        level.x * scale + tiles.width * scale * tileMultiplier,
-      );
-      minWidth = Math.min(minWidth, level.x * scale);
-      maxHeight = Math.max(
-        maxHeight,
-        level.y * scale + tiles.height * scale * tileMultiplier,
-      );
-      minHeight = Math.min(minHeight, level.y * scale);
-    }
-
-    return [minWidth, maxWidth, minHeight, maxHeight]; // TODO: why is the max height slighlt wrong
-  }
-
-  drawLevel(level: Level) {
+  drawLevel(level: Level, position: Vector2) {
     const tiles = level.solids;
     if (!tiles) {
       console.error('Tiles was undefined');
@@ -75,8 +40,8 @@ export class MapRenderer {
     }
     const ctx = this.ctx;
 
-    const levelX = level.x * scale - this.minWidth;
-    const levelY = level.y * scale - this.minHeight;
+    const levelX = level.x * this.scale - this.bounds.left + position.x;
+    const levelY = level.y * this.scale - this.bounds.top + position.y;
 
     ctx.strokeStyle = 'rgb(0 0 0 / 40%)';
     ctx.strokeRect(levelX, levelY, level.width, level.height);
@@ -95,10 +60,10 @@ export class MapRenderer {
           continue;
         }
         ctx.strokeRect(
-          x * scale * tileMultiplier + xOffset,
-          y * scale * tileMultiplier + yOffset,
-          scale * tileMultiplier,
-          scale * tileMultiplier,
+          x * this.scale * CelesteMap.tileMultiplier + xOffset,
+          y * this.scale * CelesteMap.tileMultiplier + yOffset,
+          this.scale * CelesteMap.tileMultiplier,
+          this.scale * CelesteMap.tileMultiplier,
         );
       }
     }

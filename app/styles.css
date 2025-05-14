@@ -35,6 +35,6 @@ body {
   overflow: hidden;
 }
 
-#canvas {
-  border: 1px darkgray solid;
-}
+/* #canvas {
+  margin: 20px;
+} */
