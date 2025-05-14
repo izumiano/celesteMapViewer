@@ -2,7 +2,7 @@ import {CelesteMap} from '../mapTypes/celesteMap.js';
 import {Level} from '../mapTypes/level.js';
 import {TileMatrix} from '../mapTypes/tileMatrix.js';
 
-const scale = 0.5 * 2 ** -2;
+const scale = 0.5 * 2 ** 1;
 const tileMultiplier = 8;
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 const header = document.getElementById('header')!;
@@ -64,7 +64,7 @@ export class MapRenderer {
       minHeight = Math.min(minHeight, level.y * scale);
     }
 
-    return [minWidth, maxWidth, minHeight, maxHeight + 100]; // TODO: why is the max height slighlt wrong
+    return [minWidth, maxWidth, minHeight, maxHeight]; // TODO: why is the max height slighlt wrong
   }
 
   drawLevel(level: Level) {
@@ -73,18 +73,17 @@ export class MapRenderer {
       console.error('Tiles was undefined');
       return;
     }
+    const ctx = this.ctx;
 
-    this.drawSolids(
-      tiles,
-      level.x * scale - this.minWidth,
-      level.y * scale - this.minHeight,
-    );
+    const levelX = level.x * scale - this.minWidth;
+    const levelY = level.y * scale - this.minHeight;
 
-    this.drawRoomLabel(
-      level.name,
-      level.x * scale - this.minWidth,
-      level.y * scale - this.minHeight,
-    );
+    ctx.strokeStyle = 'rgb(0 0 0 / 40%)';
+    ctx.strokeRect(levelX, levelY, level.width, level.height);
+
+    this.drawSolids(tiles, levelX, levelY);
+
+    this.drawRoomLabel(level.name, levelX, levelY);
   }
 
   drawSolids(tiles: TileMatrix, xOffset: number, yOffset: number) {
