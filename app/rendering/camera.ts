@@ -1,31 +1,29 @@
+import {Bounds} from '../utils/bounds.js';
 import {Vector2} from '../utils/vector2.js';
 
-type OnMoveFunc = (x: number, y: number) => void;
-type GetPositionFunc = () => Vector2;
+type OnMoveFunc = (position: Vector2) => void;
 
 export class Camera {
   position = new Vector2(0, 0);
+  mapBounds: Vector2;
   size: Vector2;
 
   #element: HTMLElement;
-  #getPositionFunc: GetPositionFunc;
-  #onMoveFunc: OnMoveFunc;
   #onClickData: ClickData[] = [];
 
-  constructor(
-    element: HTMLElement,
-    width: number,
-    height: number,
-    getPosition: GetPositionFunc,
-    onMove: OnMoveFunc,
-  ) {
+  #marginSize = 20;
+  #borderSize = 10; // size of the css border on canvasContainer
+  #sizeOffset = this.#marginSize + this.#borderSize;
+
+  constructor(element: HTMLElement, bounds: Bounds, size: Vector2) {
     this.#element = element;
-    this.size = new Vector2(width, height);
-    this.#getPositionFunc = getPosition;
-    this.#onMoveFunc = onMove;
+    this.mapBounds = new Vector2(bounds.width, bounds.height);
+    size.x -= this.#borderSize;
+    size.y -= this.#borderSize;
+    this.size = size;
   }
 
-  #moveTo(xPos: number, yPos: number) {
+  #moveTo(xPos: number, yPos: number, onMove: OnMoveFunc) {
     const clickData = this.#onClickData[0];
 
     const elementPosition = clickData.elementPosition;
@@ -33,27 +31,24 @@ export class Camera {
     let x = elementPosition.x + xPos - mousePosition.x;
     let y = elementPosition.y + yPos - mousePosition.y;
 
-    const marginSize = 20;
-    const borderSize = 10; // size of the css border on canvasContainer
-    const sizeOffset = marginSize + borderSize;
     const boundingRect = this.#element.getBoundingClientRect();
-    x = Math.max(this.size.x + boundingRect.width - sizeOffset, x);
-    x = Math.min(marginSize, x);
-    y = Math.max(-this.size.y + boundingRect.height - sizeOffset, y);
-    y = Math.min(marginSize, y);
+    x = Math.max(this.mapBounds.x + boundingRect.width - this.#sizeOffset, x);
+    x = Math.min(this.#marginSize, x);
+    y = Math.max(-this.mapBounds.y + boundingRect.height - this.#sizeOffset, y);
+    y = Math.min(this.#marginSize, y);
 
-    console.log(x);
-
-    this.#onMoveFunc(x, y);
+    this.position.x = x;
+    this.position.y = y;
+    onMove(this.position);
   }
 
   #onClickStart(x: number, y: number) {
     this.#onClickData.push(
-      new ClickData(new Vector2(x, y), Vector2.Create(this.#getPositionFunc())),
+      new ClickData(new Vector2(x, y), Vector2.Create(this.position)),
     );
   }
 
-  start() {
+  start(onMove: OnMoveFunc) {
     this.#element.onmousedown = event => {
       if (event.button == 1 || event.buttons == 4) {
         event.preventDefault();
@@ -74,7 +69,7 @@ export class Camera {
       }
       event.preventDefault();
 
-      this.#moveTo(event.clientX, event.clientY);
+      this.#moveTo(event.clientX, event.clientY, onMove);
     };
 
     if (typeof this.#element.ontouchstart !== 'undefined') {
@@ -105,7 +100,7 @@ export class Camera {
 
         const changedTouch = event.changedTouches[0];
 
-        this.#moveTo(changedTouch.clientX, changedTouch.clientY);
+        this.#moveTo(changedTouch.clientX, changedTouch.clientY, onMove);
       };
     }
   }

@@ -3,6 +3,7 @@ import {Level} from '../mapTypes/level.js';
 import {TileMatrix} from '../mapTypes/tileMatrix.js';
 import {Bounds} from '../utils/bounds.js';
 import {Vector2} from '../utils/vector2.js';
+import {Camera} from './camera.js';
 
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 
@@ -12,16 +13,41 @@ export class MapRenderer {
   ctx: CanvasRenderingContext2D;
 
   bounds: Bounds;
+  camera: Camera;
 
-  constructor(map: CelesteMap, bounds: Bounds) {
+  constructor(map: CelesteMap, bounds: Bounds, camera: Camera) {
     this.map = map;
     this.bounds = bounds;
+    this.camera = camera;
+    camera.start(position => {
+      this.draw(position);
+    });
     const ctx = canvas.getContext('2d');
     if (ctx === null) {
       throw new Error('ctx was null');
     }
 
     this.ctx = ctx;
+  }
+
+  levelIsInView(level: Level) {
+    const left =
+      level.x * this.scale - this.bounds.left + this.camera.position.x;
+    const right =
+      (level.x + level.width) * this.scale -
+      this.bounds.left +
+      this.camera.position.x;
+    const top = level.y * this.scale - this.bounds.top + this.camera.position.y;
+    const bottom =
+      (level.y + level.height) * this.scale -
+      this.bounds.top +
+      this.camera.position.y;
+    return (
+      left < this.camera.size.x &&
+      right > 0 &&
+      top < this.camera.size.y &&
+      bottom > 0
+    );
   }
 
   draw(position: Vector2) {
@@ -38,6 +64,10 @@ export class MapRenderer {
       console.error('Tiles was undefined');
       return;
     }
+    if (!this.levelIsInView(level)) {
+      return;
+    }
+
     const ctx = this.ctx;
 
     const levelX = level.x * this.scale - this.bounds.left + position.x;
