@@ -1,7 +1,8 @@
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
+const canvasContainer = document.getElementById('canvasContainer')!;
 
 let onClickData: ClickData[] = [];
-canvas.onmousedown = event => {
+canvasContainer.onmousedown = event => {
   if (event.button == 1 || event.buttons == 4) {
     event.preventDefault();
     onClickStart(event.clientX, event.clientY);
@@ -50,16 +51,19 @@ function onMove(xPos: number, yPos: number) {
   let x = clickData.canvasX + xPos - clickData.x;
   let y = clickData.canvasY + yPos - clickData.y;
 
-  x = Math.max(-canvas.width + innerWidth - (8 * 2 + 5 * 2), x);
+  const boundingRect = canvasContainer.getBoundingClientRect();
+  console.log(boundingRect.width);
+  const sizeOffset = 50; // margin + border*2 = 10 + 20*2
+  x = Math.max(-canvas.width + boundingRect.width - sizeOffset, x);
   x = Math.min(0, x);
-  y = Math.max(-canvas.height + innerHeight - (8 * 2 + 5 * 2), y);
+  y = Math.max(-canvas.height + boundingRect.height - sizeOffset, y);
   y = Math.min(0, y);
 
   canvas.style.transform = `translate(${x}px, ${y}px)`;
 }
 
 if (typeof canvas.ontouchstart !== 'undefined') {
-  canvas.ontouchstart = event => {
+  canvasContainer.ontouchstart = event => {
     event.preventDefault();
 
     onClickStart(
