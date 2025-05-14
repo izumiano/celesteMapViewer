@@ -8,7 +8,7 @@ import {Camera} from './camera.js';
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 
 export class MapRenderer {
-  scale = 2 ** 0;
+  #scale: number;
   map: CelesteMap;
   ctx: CanvasRenderingContext2D;
 
@@ -31,31 +31,40 @@ export class MapRenderer {
       camera.updateSize();
       this.draw(camera.position);
     };
+    this.#scale = camera.scale;
 
     this.ctx = ctx;
   }
 
   levelIsInView(level: Level) {
     const left =
-      level.x * this.scale - this.bounds.left + this.camera.position.x;
+      (level.x - this.bounds.left) * this.#scale + this.camera.position.x;
+    if (left > this.camera.size.x) {
+      return false;
+    }
     const right =
-      (level.x + level.width) * this.scale -
-      this.bounds.left +
+      (level.x + level.width - this.bounds.left) * this.#scale +
       this.camera.position.x;
-    const top = level.y * this.scale - this.bounds.top + this.camera.position.y;
+    if (right < 0) {
+      return false;
+    }
+    const top =
+      (level.y - this.bounds.top) * this.#scale + this.camera.position.y;
+    if (top > this.camera.size.y) {
+      return false;
+    }
     const bottom =
-      (level.y + level.height) * this.scale -
-      this.bounds.top +
+      (level.y + level.height - this.bounds.top) * this.#scale +
       this.camera.position.y;
-    return (
-      left < this.camera.size.x &&
-      right > 0 &&
-      top < this.camera.size.y &&
-      bottom > 0
-    );
+    if (bottom < 0) {
+      return false;
+    }
+    return true;
   }
 
   draw(position: Vector2) {
+    this.#scale = this.camera.scale;
+
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     for (const level of this.map.levels) {
@@ -75,11 +84,16 @@ export class MapRenderer {
 
     const ctx = this.ctx;
 
-    const levelX = level.x * this.scale - this.bounds.left + position.x;
-    const levelY = level.y * this.scale - this.bounds.top + position.y;
+    const levelX = (level.x - this.bounds.left) * this.#scale + position.x;
+    const levelY = (level.y - this.bounds.top) * this.#scale + position.y;
 
     ctx.strokeStyle = 'rgb(0 0 0 / 40%)';
-    ctx.strokeRect(levelX, levelY, level.width, level.height);
+    ctx.strokeRect(
+      levelX,
+      levelY,
+      level.width * this.#scale,
+      level.height * this.#scale,
+    );
 
     this.drawSolids(tiles, levelX, levelY);
 
@@ -95,10 +109,10 @@ export class MapRenderer {
           continue;
         }
         ctx.strokeRect(
-          x * this.scale * CelesteMap.tileMultiplier + xOffset,
-          y * this.scale * CelesteMap.tileMultiplier + yOffset,
-          this.scale * CelesteMap.tileMultiplier,
-          this.scale * CelesteMap.tileMultiplier,
+          x * this.#scale * CelesteMap.tileMultiplier + xOffset,
+          y * this.#scale * CelesteMap.tileMultiplier + yOffset,
+          this.#scale * CelesteMap.tileMultiplier,
+          this.#scale * CelesteMap.tileMultiplier,
         );
       }
     }

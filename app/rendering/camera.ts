@@ -10,6 +10,7 @@ export class Camera {
   position = new Vector2(0, 0);
   mapBounds: Vector2;
   size = new Vector2(0, 0);
+  scale = 2 ** 2;
 
   #element: HTMLElement;
   #onClickData: ClickData[] = [];
@@ -40,9 +41,15 @@ export class Camera {
 
   #getClampedPosition(x: number, y: number) {
     const boundingRect = this.#element.getBoundingClientRect();
-    x = Math.max(this.mapBounds.x + boundingRect.width - this.#sizeOffset, x);
+    x = Math.max(
+      this.mapBounds.x * this.scale + boundingRect.width - this.#sizeOffset,
+      x,
+    );
     x = Math.min(this.#marginSize, x);
-    y = Math.max(-this.mapBounds.y + boundingRect.height - this.#sizeOffset, y);
+    y = Math.max(
+      -this.mapBounds.y * this.scale + boundingRect.height - this.#sizeOffset,
+      y,
+    );
     y = Math.min(this.#marginSize, y);
 
     return new Vector2(x, y);
