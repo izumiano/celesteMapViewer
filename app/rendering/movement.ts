@@ -21,18 +21,21 @@ function onClickStart(x: number, y: number) {
       .map(val => {
         return parseInt(val);
       });
+
+    canvasX ??= 0;
+    canvasY ??= 0;
   }
   onClickData.push(new ClickData(x, y, canvasX, canvasY));
 }
 
-canvas.onmouseup = event => {
+onmouseup = event => {
   if (event.button == 1 || event.buttons == 4) {
     event.preventDefault();
     onClickData.pop();
   }
 };
 
-canvas.onmousemove = event => {
+onmousemove = event => {
   if (onClickData.length <= 0) {
     return;
   }
@@ -46,9 +49,6 @@ function onMove(xPos: number, yPos: number) {
 
   let x = clickData.canvasX + xPos - clickData.x;
   let y = clickData.canvasY + yPos - clickData.y;
-
-  x = isNaN(x) ? 0 : x;
-  y = isNaN(y) ? 0 : y;
 
   x = Math.max(-canvas.width + innerWidth - (8 * 2 + 5 * 2), x);
   x = Math.min(0, x);
@@ -68,23 +68,22 @@ if (typeof canvas.ontouchstart !== 'undefined') {
     );
   };
 
-  canvas.ontouchend = event => {
+  ontouchend = event => {
     event.preventDefault();
     onClickData.pop();
   };
 
-  canvas.ontouchcancel = event => {
+  ontouchcancel = event => {
     event.preventDefault();
     onClickData.pop();
   };
 
-  canvas.ontouchmove = event => {
+  ontouchmove = event => {
     if (!onClickData) {
       return;
     }
     event.preventDefault();
 
-    const clickData = onClickData[0];
     const changedTouch = event.changedTouches[0];
 
     onMove(changedTouch.clientX, changedTouch.clientY);
