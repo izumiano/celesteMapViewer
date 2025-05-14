@@ -19,13 +19,18 @@ export class MapRenderer {
     this.map = map;
     this.bounds = bounds;
     this.camera = camera;
-    camera.start(position => {
-      this.draw(position);
-    });
     const ctx = canvas.getContext('2d');
     if (ctx === null) {
       throw new Error('ctx was null');
     }
+
+    camera.start(position => {
+      this.draw(position);
+    });
+    onresize = _ => {
+      camera.updateSize();
+      this.draw(camera.position);
+    };
 
     this.ctx = ctx;
   }
