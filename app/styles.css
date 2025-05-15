@@ -12,11 +12,13 @@ body {
   touch-action: none;
 }
 
+#body {
+  height: 100%;
+}
+
 .flex {
   display: flex;
   flex-direction: column;
-
-  height: 100%;
 }
 
 #canvasContainer {
@@ -35,6 +37,7 @@ body {
   overflow: hidden;
 }
 
-/* #canvas {
-  margin: 20px;
-} */
+#test {
+  flex: 1 1 auto;
+  text-align: center;
+}

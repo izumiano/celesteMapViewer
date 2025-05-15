@@ -24,37 +24,45 @@ export class MapRenderer {
       throw new Error('ctx was null');
     }
 
-    camera.start(position => {
+    this.ctx = ctx;
+
+    this.#scale = camera.scale;
+  }
+
+  start() {
+    this.camera.start(position => {
       this.draw(position);
     });
-    onresize = _ => {
-      camera.updateSize();
-      this.draw(camera.position);
+    this.camera.onResize = () => {
+      this.draw(this.camera.position);
     };
-    this.#scale = camera.scale;
+    onresize = _ => {
+      this.camera.updateSize();
+      this.draw(this.camera.position);
+    };
 
-    this.ctx = ctx;
+    this.draw(this.camera.position);
   }
 
   levelIsInView(level: Level) {
     const left =
-      (level.x - this.bounds.left) * this.#scale + this.camera.position.x;
+      (level.x - this.bounds.left) * this.#scale - this.camera.position.x;
     if (left > this.camera.size.x) {
       return false;
     }
     const right =
-      (level.x + level.width - this.bounds.left) * this.#scale +
+      (level.x + level.width - this.bounds.left) * this.#scale -
       this.camera.position.x;
     if (right < 0) {
       return false;
     }
     const top =
-      (level.y - this.bounds.top) * this.#scale + this.camera.position.y;
+      (level.y - this.bounds.top) * this.#scale - this.camera.position.y;
     if (top > this.camera.size.y) {
       return false;
     }
     const bottom =
-      (level.y + level.height - this.bounds.top) * this.#scale +
+      (level.y + level.height - this.bounds.top) * this.#scale -
       this.camera.position.y;
     if (bottom < 0) {
       return false;
@@ -70,6 +78,8 @@ export class MapRenderer {
     for (const level of this.map.levels) {
       this.drawLevel(level, position);
     }
+
+    // this.drawDebug();
   }
 
   drawLevel(level: Level, position: Vector2) {
@@ -84,8 +94,8 @@ export class MapRenderer {
 
     const ctx = this.ctx;
 
-    const levelX = (level.x - this.bounds.left) * this.#scale + position.x;
-    const levelY = (level.y - this.bounds.top) * this.#scale + position.y;
+    const levelX = (level.x - this.bounds.left) * this.#scale - position.x;
+    const levelY = (level.y - this.bounds.top) * this.#scale - position.y;
 
     ctx.strokeStyle = 'rgb(0 0 0 / 40%)';
     ctx.strokeRect(
@@ -98,6 +108,48 @@ export class MapRenderer {
     this.drawSolids(tiles, levelX, levelY);
 
     this.drawRoomLabel(level.name, levelX, levelY);
+  }
+
+  drawDebug() {
+    const ctx = this.ctx;
+    //
+    ctx.font = `15px serif`;
+    ctx.fillStyle = 'black';
+
+    // Top
+    ctx.strokeRect(this.camera.size.x / 2, 0, 0, 20);
+    ctx.fillText(
+      (this.camera.position.x + this.camera.size.x / 2).toString(),
+      this.camera.size.x / 2,
+      30,
+    );
+
+    // Bottom
+    // ctx.strokeRect(
+    //   this.camera.size.x / 2,
+    //   this.camera.size.y - Camera.marginSize - 10,
+    //   0,
+    //   10,
+    // );
+    // ctx.fillText(
+    //   (this.camera.size.x / 2).toString(),
+    //   this.camera.size.x / 2,
+    //   this.camera.size.y - Camera.marginSize - 10,
+    // );
+
+    // Moving;
+    ctx.strokeRect(
+      -this.camera.position.x + (this.camera.size.x / 2) * this.#scale,
+      0,
+      0,
+      10,
+    );
+    ctx.fillText(
+      //
+      ((this.camera.size.x / 2) * this.#scale).toString(),
+      -this.camera.position.x + (this.camera.size.x / 2) * this.#scale,
+      20,
+    );
   }
 
   drawSolids(tiles: TileMatrix, xOffset: number, yOffset: number) {
