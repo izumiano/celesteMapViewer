@@ -5,25 +5,51 @@ const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 const canvasContainer = document.getElementById('canvasContainer')!;
 
 type OnMoveFunc = (position: Vector2) => void;
+type OnResizeFunc = () => void;
 
 export class Camera {
-  position = new Vector2(0, 0);
+  position = new Vector2(-Camera.marginSize, -Camera.marginSize);
   mapBounds: Vector2;
   size = new Vector2(0, 0);
-  scale = 2 ** 2;
+  scale = 1;
+
+  onResize: OnResizeFunc | null = null;
 
   #element: HTMLElement;
   #onClickData: ClickData[] = [];
 
-  #marginSize = 20;
-  #borderSize = 10; // size of the css border on canvasContainer
-  #sizeOffset = this.#marginSize + this.#borderSize;
+  static marginSize = 20;
+  static borderSize = 10; // size of the css border on canvasContainer
+  static sizeOffset = this.marginSize + this.borderSize;
 
   constructor(element: HTMLElement, bounds: Bounds) {
     this.#element = element;
     this.mapBounds = new Vector2(bounds.width, bounds.height);
 
     this.updateSize();
+
+    canvasContainer.onwheel = event => {
+      const dir = Math.sign(event.deltaY);
+      const prevScale = this.scale;
+      this.scale -= dir / 15;
+
+      const prevMidX = this.position.x + this.size.x / 2;
+      const prevMidY = this.position.y + this.size.y / 2;
+
+      this.position.x +=
+        ((this.position.x + this.size.x / 2) / prevScale) * this.scale -
+        prevMidX;
+      this.position.y +=
+        ((this.position.y + this.size.y / 2) / prevScale) * this.scale -
+        prevMidY;
+
+      this.position = this.#getClampedPosition(
+        this.position.x,
+        this.position.y,
+      );
+
+      this.onResize && this.onResize();
+    };
   }
 
   updateSize() {
@@ -32,8 +58,8 @@ export class Camera {
     canvas.height = boundingRect.height;
 
     this.size = new Vector2(
-      boundingRect.width - this.#borderSize,
-      boundingRect.height - this.#borderSize,
+      boundingRect.width - Camera.borderSize,
+      boundingRect.height - Camera.borderSize,
     );
 
     this.position = this.#getClampedPosition(this.position.x, this.position.y);
@@ -41,16 +67,16 @@ export class Camera {
 
   #getClampedPosition(x: number, y: number) {
     const boundingRect = this.#element.getBoundingClientRect();
-    x = Math.max(
-      this.mapBounds.x * this.scale + boundingRect.width - this.#sizeOffset,
+    x = Math.min(
+      -this.mapBounds.x * this.scale - boundingRect.width + Camera.sizeOffset,
       x,
     );
-    x = Math.min(this.#marginSize, x);
-    y = Math.max(
-      -this.mapBounds.y * this.scale + boundingRect.height - this.#sizeOffset,
+    x = Math.max(-Camera.marginSize, x);
+    y = Math.min(
+      this.mapBounds.y * this.scale - boundingRect.height + Camera.sizeOffset,
       y,
     );
-    y = Math.min(this.#marginSize, y);
+    y = Math.max(-Camera.marginSize, y);
 
     return new Vector2(x, y);
   }
@@ -60,10 +86,11 @@ export class Camera {
 
     const elementPosition = clickData.elementPosition;
     const mousePosition = clickData.mousePosition;
-    const x = elementPosition.x + position.x - mousePosition.x;
-    const y = elementPosition.y + position.y - mousePosition.y;
+    const x = elementPosition.x - position.x + mousePosition.x;
+    const y = elementPosition.y - position.y + mousePosition.y;
 
     this.position = this.#getClampedPosition(x, y);
+
     onMove(this.position);
   }
 
