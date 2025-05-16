@@ -2,7 +2,6 @@ import {Bounds} from '../utils/bounds.js';
 import {Vector2} from '../utils/vector2.js';
 
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
-const canvasContainer = document.getElementById('canvasContainer')!;
 
 type OnMoveFunc = (position: Vector2) => void;
 type OnResizeFunc = () => void;
@@ -18,8 +17,9 @@ export class Camera {
   #element: HTMLElement;
   #onClickData: ClickData[] = [];
 
+  // static containerMargin = 8; // 0.5rem; size of the css margin on the body
   static marginSize = 20;
-  static borderSize = 10; // size of the css border on canvasContainer
+  static borderSize = 10; // size of the css border*2 on canvasContainer
   static sizeOffset = this.marginSize + this.borderSize;
 
   constructor(element: HTMLElement, bounds: Bounds) {
@@ -28,32 +28,21 @@ export class Camera {
 
     this.updateSize();
 
-    canvasContainer.onwheel = event => {
-      const dir = Math.sign(event.deltaY);
-      const prevScale = this.scale;
-      this.scale -= dir / 15;
-
-      const prevMidX = this.position.x + this.size.x / 2;
-      const prevMidY = this.position.y + this.size.y / 2;
-
-      this.position.x +=
-        ((this.position.x + this.size.x / 2) / prevScale) * this.scale -
-        prevMidX;
-      this.position.y +=
-        ((this.position.y + this.size.y / 2) / prevScale) * this.scale -
-        prevMidY;
-
-      this.position = this.#getClampedPosition(
-        this.position.x,
-        this.position.y,
+    onwheel = event => {
+      const boundingRect = element.getBoundingClientRect();
+      const mousePosition = new Vector2(
+        event.clientX - boundingRect.x - Camera.borderSize / 2,
+        event.clientY - boundingRect.y - Camera.borderSize / 2,
       );
 
-      this.onResize && this.onResize();
+      const dir = Math.sign(event.deltaY);
+
+      this.setScale(this.scale * 1.1 ** -dir, mousePosition);
     };
   }
 
   updateSize() {
-    const boundingRect = canvasContainer.getBoundingClientRect();
+    const boundingRect = this.#element.getBoundingClientRect();
     canvas.width = boundingRect.width;
     canvas.height = boundingRect.height;
 
@@ -63,6 +52,30 @@ export class Camera {
     );
 
     this.position = this.#getClampedPosition(this.position.x, this.position.y);
+  }
+
+  /**
+   *
+   * @param newScale
+   * @param zoomPoint The point in screen-space to zoom in on
+   */
+  setScale(newScale: number, zoomPoint: Vector2) {
+    const prevScale = this.scale;
+    this.scale = newScale;
+
+    const globalZoomPoint = new Vector2(
+      this.position.x + zoomPoint.x,
+      this.position.y + zoomPoint.y,
+    );
+
+    this.position.x +=
+      (globalZoomPoint.x / prevScale) * this.scale - globalZoomPoint.x;
+    this.position.y +=
+      (globalZoomPoint.y / prevScale) * this.scale - globalZoomPoint.y;
+
+    this.position = this.#getClampedPosition(this.position.x, this.position.y);
+
+    this.onResize && this.onResize();
   }
 
   #getClampedPosition(x: number, y: number) {
