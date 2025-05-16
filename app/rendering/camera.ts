@@ -17,7 +17,6 @@ export class Camera {
   #element: HTMLElement;
   #onClickData: ClickData[] = [];
 
-  // static containerMargin = 8; // 0.5rem; size of the css margin on the body
   static marginSize = 20;
   static borderSize = 10; // size of the css border*2 on canvasContainer
   static sizeOffset = this.marginSize + this.borderSize;
