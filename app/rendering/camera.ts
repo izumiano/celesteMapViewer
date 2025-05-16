@@ -27,7 +27,7 @@ export class Camera {
 
     this.updateSize();
 
-    onwheel = event => {
+    element.onwheel = event => {
       const boundingRect = element.getBoundingClientRect();
       const mousePosition = new Vector2(
         event.clientX - boundingRect.x - Camera.borderSize,
