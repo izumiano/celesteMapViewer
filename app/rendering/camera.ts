@@ -18,8 +18,8 @@ export class Camera {
   #onClickData: ClickData[] = [];
 
   static marginSize = 20;
-  static borderSize = 10; // size of the css border*2 on canvasContainer
-  static sizeOffset = this.marginSize + this.borderSize;
+  static borderSize = 5; // size of the css border on canvasContainer
+  static sizeOffset = this.marginSize + this.borderSize * 2;
 
   constructor(element: HTMLElement, bounds: Bounds) {
     this.#element = element;
@@ -30,8 +30,8 @@ export class Camera {
     onwheel = event => {
       const boundingRect = element.getBoundingClientRect();
       const mousePosition = new Vector2(
-        event.clientX - boundingRect.x - Camera.borderSize / 2,
-        event.clientY - boundingRect.y - Camera.borderSize / 2,
+        event.clientX - boundingRect.x - Camera.borderSize,
+        event.clientY - boundingRect.y - Camera.borderSize,
       );
 
       const dir = Math.sign(event.deltaY);
@@ -46,8 +46,8 @@ export class Camera {
     canvas.height = boundingRect.height;
 
     this.size = new Vector2(
-      boundingRect.width - Camera.borderSize,
-      boundingRect.height - Camera.borderSize,
+      boundingRect.width - Camera.borderSize * 2,
+      boundingRect.height - Camera.borderSize * 2,
     );
 
     this.position = this.#getClampedPosition(this.position.x, this.position.y);
