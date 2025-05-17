@@ -10,4 +10,8 @@ export class Vector2 {
   static Create(vec: Vector2) {
     return new Vector2(vec.x, vec.y);
   }
+
+  distance(vec: Vector2) {
+    return Math.hypot(this.x - vec.x, this.y - vec.y);
+  }
 }

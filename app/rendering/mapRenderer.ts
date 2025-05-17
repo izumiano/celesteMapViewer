@@ -110,16 +110,70 @@ export class MapRenderer {
     this.drawRoomLabel(level.name, levelX, levelY);
   }
 
+  drawTouchDebug() {
+    const touchHandler = this.camera.touchHandler;
+    if (!touchHandler) {
+      return;
+    }
+    if (touchHandler.onInputData.length < 2) {
+      return;
+    }
+
+    const ctx = this.ctx;
+
+    const boundingRect = touchHandler.element.getBoundingClientRect();
+
+    const touch1 = touchHandler.onInputData[0];
+    const touch2 = touchHandler.onInputData[1];
+    const touch1Pos = new Vector2(
+      touch1.currentPosition.x - boundingRect.x,
+      touch1.currentPosition.y - boundingRect.y,
+    );
+    const touch2Pos = new Vector2(
+      touch2.currentPosition.x - boundingRect.x,
+      touch2.currentPosition.y - boundingRect.y,
+    );
+    const mid = new Vector2(
+      touch1Pos.x + (touch2Pos.x - touch1Pos.x) / 2,
+      touch1Pos.y + (touch2Pos.y - touch1Pos.y) / 2,
+    );
+
+    ctx.beginPath();
+    ctx.moveTo(touch1Pos.x, touch1Pos.y);
+    ctx.lineTo(touch2Pos.x, touch2Pos.y);
+    ctx.stroke();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.arc(touch1Pos.x, touch1Pos.y, 50, 0, Math.PI * 2, true);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(touch2Pos.x, touch2Pos.y, 50, 0, Math.PI * 2, true);
+    ctx.stroke();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.arc(mid.x, mid.y, 10, 0, Math.PI * 2, true);
+    ctx.fill();
+    ctx.closePath();
+  }
+
   drawDebug() {
     const ctx = this.ctx;
     //
     ctx.font = `15px serif`;
     ctx.fillStyle = 'black';
 
+    this.drawTouchDebug();
+
     // Top
     ctx.strokeRect(this.camera.size.x / 2, 0, 0, 20);
     ctx.fillText(
-      (this.camera.position.x + this.camera.size.x / 2).toString(),
+      (
+        (this.camera.position.x + this.camera.size.x / 2) /
+        this.#scale
+      ).toString(),
       this.camera.size.x / 2,
       30,
     );
@@ -146,7 +200,7 @@ export class MapRenderer {
     );
     ctx.fillText(
       //
-      ((this.camera.size.x / 2) * this.#scale).toString(),
+      (this.camera.size.x / 2).toString(),
       -this.camera.position.x + (this.camera.size.x / 2) * this.#scale,
       20,
     );
