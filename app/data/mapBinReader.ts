@@ -1,4 +1,4 @@
-import {CelesteMap} from './mapTypes/celesteMap.js';
+import {CelesteMap} from '../mapTypes/celesteMap.js';
 
 export class MapBinReader {
   #bytes = new Uint8Array(0);

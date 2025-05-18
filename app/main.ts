@@ -1,4 +1,4 @@
-import {MapBinReader} from './mapBinReader.js';
+import {MapBinReader} from './data/mapBinReader.js';
 import {MapRenderer} from './rendering/mapRenderer.js';
 import {Camera} from './rendering/camera.js';
 
