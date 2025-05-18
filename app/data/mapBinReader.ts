@@ -1,13 +1,23 @@
 import {CelesteMap} from '../mapTypes/celesteMap.js';
 
 export class MapBinReader {
-  #bytes = new Uint8Array(0);
+  #bytes: Uint8Array<ArrayBufferLike> = new Uint8Array(0);
   #index = 0;
+
+  async decodeData(data: Uint8Array<ArrayBufferLike>) {
+    this.#bytes = data;
+
+    return this.#decode();
+  }
 
   async decodeFile(file: RequestInfo) {
     const buffer = await (await fetch(file)).arrayBuffer();
     this.#bytes = new Uint8Array(buffer);
 
+    return this.#decode();
+  }
+
+  #decode() {
     console.log(this.#bytes);
     const header = this.readString();
     if (header !== 'CELESTE MAP') {
