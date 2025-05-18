@@ -7,7 +7,7 @@ import {
   TextWriter,
   ZipReader,
   ZipWriter,
-} from '../../node_modules/@zip.js/zip.js/index.js';
+} from '../node_modules/@zip.js/zip.js/index.js';
 import {MapZipData, ModZipData} from './modZipData.js';
 
 export class ModZipReader {

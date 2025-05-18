@@ -1,7 +1,7 @@
-import {MapBinReader} from './data/mapBinReader.js';
+import {MapBinReader} from '../data/mapBinReader.js';
 import {MapRenderer} from './rendering/mapRenderer.js';
 import {Camera} from './rendering/camera.js';
-import {ModZipReader} from './data/modZipReader.js';
+import {ModZipReader} from '../data/modZipReader.js';
 
 const canvasContainer = document.getElementById('canvasContainer')!;
 const header = document.getElementById('header')!;
