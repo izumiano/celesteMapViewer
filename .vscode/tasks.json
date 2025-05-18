@@ -6,6 +6,12 @@
       "type": "shell",
       "command": "cd lua;lua test.lua",
       "problemMatcher": []
+    },
+    {
+      "label": "show/hide .js files",
+      "type": "shell",
+      "command": "python3 .vscode/toggleShowHideJsFiles.py",
+      "problemMatcher": []
     }
   ]
 }
