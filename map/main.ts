@@ -8,6 +8,26 @@ const canvasContainer = document.getElementById('canvasContainer')!;
 const header = document.getElementById('header')!;
 const mapList = <HTMLSelectElement>document.getElementById('mapList');
 const mapListPlaceholder = document.getElementById('mapListPlaceholder')!;
+const gbLinkInput = <HTMLInputElement>document.getElementById('gbLinkInput');
+const modUploadInput = <HTMLInputElement>document.getElementById('modUpload');
+
+const originalMapListContent = mapList.innerHTML;
+
+modUploadInput.onchange = event => {
+  const files = modUploadInput.files;
+  if (!files || files.length <= 0) {
+    return;
+  }
+
+  console.log('now');
+
+  readMod(files[0].arrayBuffer());
+};
+
+gbLinkInput.onchange = _ => {
+  console.log(gbLinkInput.value);
+  readMod(fetch("../testData/Monika's D-Sides.zip"));
+};
 
 async function showMap(mapZipData: MapZipData, modZipReader: ModZipReader) {
   const mapData = await modZipReader.readMap(mapZipData);
@@ -23,9 +43,12 @@ async function showMap(mapZipData: MapZipData, modZipReader: ModZipReader) {
   mapRenderer.start();
 }
 
-async function run() {
-  const modZipReader = new ModZipReader("../testData/Monika's D-Sides.zip");
-  const modZipData = await modZipReader.readMod();
+async function readMod(modData: Promise<Response> | Promise<ArrayBuffer>) {
+  const modZipReader = new ModZipReader();
+  const awaitedModData = await modData;
+  const modZipData = await modZipReader.readMod(awaitedModData);
+
+  mapList.innerHTML = originalMapListContent;
 
   for (const map of modZipData.maps) {
     const option = document.createElement('option');
@@ -51,4 +74,4 @@ async function run() {
   };
 }
 
-run();
+readMod(fetch("../testData/Monika's D-Sides.zip"));

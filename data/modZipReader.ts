@@ -1,24 +1,21 @@
 import {
   BlobReader,
-  BlobWriter,
   // @ts-ignore
   Uint8ArrayWriter,
-  TextReader,
-  TextWriter,
   ZipReader,
-  ZipWriter,
 } from '../node_modules/@zip.js/zip.js/index.js';
 import {MapZipData, ModZipData} from './modZipData.js';
 
 export class ModZipReader {
-  zipPath: string;
+  async readMod(zip: ArrayBuffer | Response) {
+    let blob;
 
-  constructor(zipPath: string) {
-    this.zipPath = zipPath;
-  }
+    if (zip instanceof Response) {
+      blob = await zip.blob();
+    } else {
+      blob = new Blob([zip]);
+    }
 
-  async readMod() {
-    const blob = await (await fetch(this.zipPath)).blob();
     const zipFileReader = new BlobReader(blob);
     const zipReader = new ZipReader(zipFileReader);
 

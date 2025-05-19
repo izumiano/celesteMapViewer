@@ -1,6 +1,7 @@
 :root {
 	--margin: 0.5rem;
 	--backgroundColor: rgb(24, 16, 23);
+	--primaryColor: rgb(170, 144, 166)
 }
 
 body {
@@ -27,18 +28,28 @@ body {
 
 #topSection * {
 	margin-top: 5px;
-	background-color: rgb(170, 144, 166);
 	color: black;
 }
 
-#topSection > input {
+#topSection > #gbLinkInput {
 	font-size: 1rem;
-	display: block;
+	background-color: var(--primaryColor);
+}
+
+#topSection > #modUpload {
+	font-size: 1rem;
+	color: white;
+}
+
+#topSection > input::placeholder {
+	color: rgb(80, 80, 80);
+	background-color: var(--primaryColor);
 }
 
 #mapList {
 	width: fit-content;
 	font-size: 1rem;
+	display: block;
 }
 
 #canvasContainer {
