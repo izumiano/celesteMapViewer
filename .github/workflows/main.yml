@@ -52,6 +52,8 @@ jobs:
         with:
           node-version: '24'
           cache: ${{ steps.detect-package-manager.outputs.manager }}
+      - run: npm ci
+      - run: npm test
       - name: Setup Pages
         uses: actions/configure-pages@v2
         with:
