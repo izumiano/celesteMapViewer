@@ -10,9 +10,12 @@
 
 <body>
 	<div id="body" class="flex">
-		<select name="mapList" id="mapList">
-			<option hidden disabled selected value id="mapListPlaceholder"> -- select a map -- </option>
-		</select>
+		<div id="topSection">
+			<input type="text">
+			<select name="mapList" id="mapList">
+				<option hidden disabled selected value id="mapListPlaceholder"> -- select a map -- </option>
+			</select>
+		</div>
 		<header id="header"></header>
 		<div id="canvasContainer">
 			<canvas id="canvas"></canvas>

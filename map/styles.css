@@ -1,6 +1,6 @@
 :root {
 	--margin: 0.5rem;
-	--backgroundColor: gray;
+	--backgroundColor: rgb(24, 16, 23);
 }
 
 body {
@@ -21,10 +21,24 @@ body {
 	flex-direction: column;
 }
 
+#topSection {
+	margin: 5px;
+}
+
+#topSection * {
+	margin-top: 5px;
+	background-color: rgb(170, 144, 166);
+	color: black;
+}
+
+#topSection > input {
+	font-size: 1rem;
+	display: block;
+}
+
 #mapList {
 	width: fit-content;
 	font-size: 1rem;
-	margin: 5px;
 }
 
 #canvasContainer {

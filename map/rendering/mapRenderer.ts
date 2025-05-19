@@ -208,7 +208,7 @@ export class MapRenderer {
 
   drawSolids(tiles: TileMatrix, xOffset: number, yOffset: number) {
     const ctx = this.ctx;
-    ctx.strokeStyle = 'rgb(0 0 0)';
+    ctx.strokeStyle = 'rgb(200 200 200)';
     for (let y = 0; y < tiles.height; y++) {
       for (let x = 0; x < tiles.width; x++) {
         if (tiles.get(x, y) < 1) {
