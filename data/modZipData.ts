@@ -22,6 +22,35 @@ export class ModZipData {
 
       this.maps.push(new MapZipData(path, entry));
     }
+
+    this.maps.sort((a, b) => {
+      // Number sort
+      const aNumStr = a.name.match(/\d+/)?.[0];
+      const aNum = Number(aNumStr);
+      const bNumStr = b.name.match(/\d+/)?.[0];
+      const bNum = Number(bNumStr);
+
+      if (aNumStr && bNumStr) {
+        if (aNum < bNum) {
+          return -1;
+        }
+        if (aNum > bNum) {
+          return 1;
+        }
+      }
+
+      // Fallback string sort
+      const nameA = a.name.substring(aNumStr?.length ?? 0).toUpperCase();
+      const nameB = b.name.substring(bNumStr?.length ?? 0).toUpperCase();
+      if (nameA < nameB) {
+        return -1;
+      }
+      if (nameA > nameB) {
+        return 1;
+      }
+
+      return 0;
+    });
   }
 }
 

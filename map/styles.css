@@ -21,6 +21,12 @@ body {
 	flex-direction: column;
 }
 
+#mapList {
+	width: fit-content;
+	font-size: 1rem;
+	margin: 5px;
+}
+
 #canvasContainer {
 	box-sizing: border-box;
 
