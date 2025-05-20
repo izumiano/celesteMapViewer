@@ -16,7 +16,7 @@
     "posttest": "npm run lint",
     "build": "tsc",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d out"
+    "deploy": "gh-pages -d docs"
   },
   "dependencies": {
     "@zip.js/zip.js": "^2.7.61"
