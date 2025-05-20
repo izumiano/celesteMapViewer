@@ -18,6 +18,7 @@
     "deploy": "next build && next export && gh-pages -d out"
   },
   "dependencies": {
-    "@zip.js/zip.js": "^2.7.61"
+    "@zip.js/zip.js": "^2.7.61",
+    "next": "^15.3.2"
   }
 }
