@@ -59,10 +59,10 @@ jobs:
       #   run: 'npm run build'
       # - name: Static HTML export with Next.js
       #   run: npm run export
-      # - name: Upload artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     path: ./out
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: ./out
 
   # Deployment job
   deploy:
