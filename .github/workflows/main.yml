@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: 'npm install'
       - name: Build with npm
-        run: 'npm run build'
+        run: 'npm run compile'
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
