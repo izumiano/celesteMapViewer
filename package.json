@@ -1,7 +1,7 @@
 {
+  "homepage": "https://izumiano.github.io/celesteMapViewer",
   "devDependencies": {
     "@types/node": "^22.7.5",
-    "@types/react": "^19.1.4",
     "gh-pages": "^6.3.0",
     "gts": "^6.0.2",
     "typescript": "^5.8.3"
@@ -14,12 +14,11 @@
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run lint",
-    "build": "next build",
-    "export": "next export",
-    "deploy": "next build && next export && gh-pages -d out"
+    "build": "tsc",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d out"
   },
   "dependencies": {
-    "@zip.js/zip.js": "^2.7.61",
-    "next": "^15.3.2"
+    "@zip.js/zip.js": "^2.7.61"
   }
 }
