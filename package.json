@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "@types/node": "^22.7.5",
+    "@types/react": "^19.1.4",
     "gh-pages": "^6.3.0",
     "gts": "^6.0.2",
     "typescript": "^5.8.3"
