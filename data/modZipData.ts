@@ -1,4 +1,4 @@
-import {Entry} from '../../node_modules/@zip.js/zip.js/index.js';
+import {Entry} from '../node_modules/@zip.js/zip.js/index.js';
 
 export class ModZipData {
   maps: MapZipData[] = [];
