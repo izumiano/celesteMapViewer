@@ -13,6 +13,10 @@ body {
 	touch-action: none;
 }
 
+#test {
+	color: white;
+}
+
 #body {
 	height: 100%;
 }
