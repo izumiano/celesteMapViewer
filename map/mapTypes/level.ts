@@ -1,3 +1,4 @@
+import {Entity} from './entity.js';
 import {TileMatrix} from './tileMatrix.js';
 
 export class Level {
@@ -15,7 +16,7 @@ export class Level {
   bgDecals: {[key: string]: any} | undefined = undefined;
   fgDecals: {[key: string]: any} | undefined = undefined;
   triggers: {[key: string]: any} | undefined = undefined;
-  entities: {[key: string]: any} | undefined = undefined;
+  entities: Entity[] = [];
 
   static toLevelSet(levels: {[key: string]: any}): Map<string, Level> {
     const ret: Map<string, Level> = new Map();
@@ -63,7 +64,7 @@ export class Level {
           this.triggers = child;
           break;
         case 'entities':
-          this.entities = child;
+          this.entities = Entity.toEntityList(child.__children);
           break;
         default:
           console.error(`unknows level child type ${childType}`);

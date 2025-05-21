@@ -1,4 +1,5 @@
 import {CelesteMap} from '../mapTypes/celesteMap.js';
+import {Entity} from '../mapTypes/entity.js';
 import {Level} from '../mapTypes/level.js';
 import {TileMatrix} from '../mapTypes/tileMatrix.js';
 import {Bounds} from '../utils/bounds.js';
@@ -126,8 +127,59 @@ export class MapRenderer {
     );
 
     this.drawSolids(tiles, levelX, levelY);
+    this.drawEntities(level.entities, levelX, levelY);
 
     this.drawRoomLabel(level.name, levelX, levelY);
+  }
+
+  drawSolids(tiles: TileMatrix, xOffset: number, yOffset: number) {
+    const ctx = this.ctx;
+    ctx.strokeStyle = 'rgb(200 200 200)';
+    for (let y = 0; y < tiles.height; y++) {
+      for (let x = 0; x < tiles.width; x++) {
+        if (tiles.get(x, y) < 1) {
+          continue;
+        }
+        ctx.strokeRect(
+          x * this.#scale * CelesteMap.tileMultiplier + xOffset,
+          y * this.#scale * CelesteMap.tileMultiplier + yOffset,
+          this.#scale * CelesteMap.tileMultiplier,
+          this.#scale * CelesteMap.tileMultiplier,
+        );
+      }
+    }
+  }
+
+  drawEntities(entities: Entity[], xOffset: number, yOffset: number) {
+    const ctx = this.ctx;
+    for (const entity of entities) {
+      if (entity.name === 'spinner') {
+        ctx.beginPath();
+        ctx.arc(
+          entity.x * this.#scale + xOffset,
+          entity.y * this.#scale + yOffset,
+          CelesteMap.tileMultiplier * this.#scale,
+          0,
+          Math.PI * 2,
+          true,
+        );
+        ctx.closePath();
+        ctx.stroke();
+      }
+    }
+  }
+
+  drawRoomLabel(label: string, xOffset: number, yOffset: number) {
+    const ctx = this.ctx;
+    const fontSize = 10;
+    ctx.font = `${fontSize}px serif`;
+    const textSize = ctx.measureText(label).width;
+
+    ctx.fillStyle = 'rgb(0 0 0 / 40%)';
+    ctx.fillRect(10 + xOffset, 10 + yOffset, textSize + 15, fontSize + 10);
+
+    ctx.fillStyle = 'white';
+    ctx.fillText(label, 20 + xOffset, fontSize + 7 + yOffset);
   }
 
   drawTouchDebug() {
@@ -224,36 +276,5 @@ export class MapRenderer {
       -this.camera.position.x + (this.camera.size.x / 2) * this.#scale,
       20,
     );
-  }
-
-  drawSolids(tiles: TileMatrix, xOffset: number, yOffset: number) {
-    const ctx = this.ctx;
-    ctx.strokeStyle = 'rgb(200 200 200)';
-    for (let y = 0; y < tiles.height; y++) {
-      for (let x = 0; x < tiles.width; x++) {
-        if (tiles.get(x, y) < 1) {
-          continue;
-        }
-        ctx.strokeRect(
-          x * this.#scale * CelesteMap.tileMultiplier + xOffset,
-          y * this.#scale * CelesteMap.tileMultiplier + yOffset,
-          this.#scale * CelesteMap.tileMultiplier,
-          this.#scale * CelesteMap.tileMultiplier,
-        );
-      }
-    }
-  }
-
-  drawRoomLabel(label: string, xOffset: number, yOffset: number) {
-    const ctx = this.ctx;
-    const fontSize = 10;
-    ctx.font = `${fontSize}px serif`;
-    const textSize = ctx.measureText(label).width;
-
-    ctx.fillStyle = 'rgb(0 0 0 / 40%)';
-    ctx.fillRect(10 + xOffset, 10 + yOffset, textSize + 15, fontSize + 10);
-
-    ctx.fillStyle = 'white';
-    ctx.fillText(label, 20 + xOffset, fontSize + 7 + yOffset);
   }
 }
