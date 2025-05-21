@@ -22,6 +22,11 @@ modUploadInput.onchange = _ => {
   readMod(files[0].arrayBuffer());
 };
 
+const files = modUploadInput.files;
+if (files && files.length > 0) {
+  readMod(files[0].arrayBuffer());
+}
+
 gbLinkInput.onchange = _ => {
   console.log(gbLinkInput.value);
 };
@@ -41,6 +46,7 @@ async function showMap(mapZipData: MapZipData, modZipReader: ModZipReader) {
 }
 
 async function readMod(modData: Promise<Response> | Promise<ArrayBuffer>) {
+  console.debug('reading mod');
   try {
     const modZipReader = new ModZipReader();
     const awaitedModData = await modData;

@@ -93,9 +93,14 @@ export class Camera {
       level.y + level.height / 2 - this.size.y / 2 - this.mapBounds.top,
     );
 
+    const widthScale =
+      this.size.x / (level.width + Camera.marginSize / this.scale);
+    const heightScale =
+      this.size.y / (level.height + Camera.marginSize / this.scale);
+
     this.position = newPos;
     this.setScale(
-      this.size.y / (level.height + Camera.marginSize / this.scale),
+      Math.min(widthScale, heightScale),
       new Vector2(this.size.x / 2, this.size.y / 2),
     );
     this.moveTo(newPos);
