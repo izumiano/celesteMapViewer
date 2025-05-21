@@ -72,7 +72,8 @@ export class Camera {
     this.position.y +=
       (globalZoomPoint.y / prevScale) * this.scale - globalZoomPoint.y;
 
-    this.position = this.#getClampedPosition(this.position.x, this.position.y);
+    // this.position = this.#getClampedPosition(this.position.x, this.position.y);
+    this.moveTo(this.position);
 
     this.onResize && this.onResize();
   }
@@ -93,10 +94,10 @@ export class Camera {
     return new Vector2(x, y);
   }
 
-  moveTo(position: Vector2, onMove: OnMoveFunc) {
+  moveTo(position: Vector2, onMove: OnMoveFunc | null = null) {
     this.position = this.#getClampedPosition(position.x, position.y);
 
-    onMove(this.position);
+    onMove && onMove(this.position);
   }
 
   start(onMove: OnMoveFunc) {

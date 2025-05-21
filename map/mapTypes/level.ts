@@ -17,11 +17,12 @@ export class Level {
   triggers: {[key: string]: any} | undefined = undefined;
   entities: {[key: string]: any} | undefined = undefined;
 
-  static toLevelArray(levels: {[key: string]: any}): Level[] {
-    const ret: Level[] = [];
+  static toLevelSet(levels: {[key: string]: any}): Map<string, Level> {
+    const ret: Map<string, Level> = new Map();
 
-    for (const [_, level] of levels.entries()) {
-      ret.push(new Level(level));
+    for (const [_, _level] of levels.entries()) {
+      const level = new Level(_level);
+      ret.set(level.name, level);
     }
 
     return ret;

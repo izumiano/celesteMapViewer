@@ -1,24 +1,33 @@
 import {Bounds} from '../utils/bounds.js';
 import {Vector2} from '../utils/vector2.js';
 import {Level} from './level.js';
+import {MapMeta} from './mapMeta.js';
 
 export class CelesteMap {
   static tileMultiplier = 8;
 
   name: string;
   package: string;
-  levels: Level[];
+  levels: Map<string, Level> = new Map();
+  meta: MapMeta | null = null;
 
   constructor(map: {[key: string]: any}) {
     console.debug(map);
 
     this.name = map.__name;
     this.package = map._package;
-    this.levels = Level.toLevelArray(
-      map.__children.find(
-        (child: {[key: string]: any}) => child.__name === 'levels',
-      ).__children,
-    );
+
+    const children = map.__children;
+    for (const child of children) {
+      switch (child.__name) {
+        case 'levels':
+          this.levels = Level.toLevelSet(child.__children);
+          break;
+        case 'meta':
+          this.meta = new MapMeta(child);
+          break;
+      }
+    }
   }
 
   calculateBounds() {
@@ -26,7 +35,7 @@ export class CelesteMap {
     let minWidth = 0;
     let maxHeight = 0;
     let minHeight = 0;
-    for (const level of this.levels) {
+    for (const level of this.levels.values()) {
       const tiles = level.solids;
       if (!tiles) {
         console.error('Tiles was undefined');
