@@ -13,8 +13,12 @@ export class Entity {
     this.height = entity.height;
   }
 
-  static toEntityList(entities: any[]) {
-    let ret = [];
+  static toEntityList(entities: any[] | undefined) {
+    let ret: Entity[] = [];
+
+    if (!entities) {
+      return ret;
+    }
 
     for (const entity of entities) {
       ret.push(new Entity(entity));
