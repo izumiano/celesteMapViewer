@@ -70,7 +70,7 @@ export class MouseHandler extends InputHandler {
     };
   }
 }
-const testHeader = document.getElementById('test')!;
+
 export class TouchHandler extends InputHandler {
   onInputStart(event: TouchEvent): void {
     this.onInputData = [];
@@ -90,19 +90,15 @@ export class TouchHandler extends InputHandler {
 
   start() {
     this.element.ontouchstart = event => {
-      testHeader.innerText = 'start';
       this.onInputStart(event);
     };
     ontouchend = event => {
-      testHeader.innerText = 'end';
       this.onInputEnd(event);
     };
     ontouchcancel = event => {
-      testHeader.innerText = 'end2';
       this.onInputEnd(event);
     };
     ontouchmove = event => {
-      testHeader.innerText = 'move';
       if (this.onInputData.length < 1) {
         return;
       }
