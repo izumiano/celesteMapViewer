@@ -33,7 +33,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # - run: npm ci
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -41,7 +40,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Install dependencies
-        run: 'npm install'
+        run: 'npm install --production'
       - name: Build with npm
         run: 'npm run compile'
       - name: Upload artifact
