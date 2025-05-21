@@ -30,6 +30,24 @@ export class CelesteMap {
     }
   }
 
+  getStartLevel() {
+    const startLevelName = this.meta?.modeMeta?.startLevel;
+    if (!startLevelName) {
+      console.error(`start level name not found for [${this.name}]`);
+      return null;
+    }
+
+    const startLevel = this.levels.get(startLevelName);
+    if (!startLevel) {
+      console.error(
+        `start level not found for [${this.name}] [${startLevelName}]`,
+      );
+      return null;
+    }
+
+    return startLevel;
+  }
+
   calculateBounds() {
     let maxWidth = 0;
     let minWidth = 0;

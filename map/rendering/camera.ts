@@ -1,3 +1,5 @@
+import {CelesteMap} from '../mapTypes/celesteMap.js';
+import {Level} from '../mapTypes/level.js';
 import {Bounds} from '../utils/bounds.js';
 import {Vector2} from '../utils/vector2.js';
 import {InputHandler, MouseHandler, TouchHandler} from './inputHandler.js';
@@ -9,7 +11,7 @@ export type OnResizeFunc = () => void;
 
 export class Camera {
   position = new Vector2(-Camera.marginSize, -Camera.marginSize);
-  mapBounds: Vector2;
+  mapBounds: Bounds;
   size = new Vector2(0, 0);
   scale = 1;
 
@@ -33,11 +35,13 @@ export class Camera {
   static borderSize = 5; // size of the css border on canvasContainer
   static sizeOffset = this.marginSize + this.borderSize * 2;
 
-  constructor(element: HTMLElement, bounds: Bounds) {
+  constructor(element: HTMLElement, map: CelesteMap, bounds: Bounds) {
     this.#element = element;
-    this.mapBounds = new Vector2(bounds.width, bounds.height);
+    this.mapBounds = bounds;
 
     this.updateSize();
+
+    this.centerLevel(map.getStartLevel());
   }
 
   updateSize() {
@@ -78,15 +82,38 @@ export class Camera {
     this.onResize && this.onResize();
   }
 
+  centerLevel(level: Level | null) {
+    if (!level) {
+      console.error('Cannot center level that is null');
+      return;
+    }
+
+    const newPos = new Vector2(
+      level.x + level.width / 2 - this.size.x / 2 - this.mapBounds.left,
+      level.y + level.height / 2 - this.size.y / 2 - this.mapBounds.top,
+    );
+
+    this.position = newPos;
+    this.setScale(
+      this.size.y / (level.height + Camera.marginSize / this.scale),
+      new Vector2(this.size.x / 2, this.size.y / 2),
+    );
+    this.moveTo(newPos);
+  }
+
   #getClampedPosition(x: number, y: number) {
     const boundingRect = this.#element.getBoundingClientRect();
     x = Math.min(
-      -this.mapBounds.x * this.scale - boundingRect.width + Camera.sizeOffset,
+      -this.mapBounds.width * this.scale -
+        boundingRect.width +
+        Camera.sizeOffset,
       x,
     );
     x = Math.max(-Camera.marginSize, x);
     y = Math.min(
-      this.mapBounds.y * this.scale - boundingRect.height + Camera.sizeOffset,
+      this.mapBounds.height * this.scale -
+        boundingRect.height +
+        Camera.sizeOffset,
       y,
     );
     y = Math.max(-Camera.marginSize, y);

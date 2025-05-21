@@ -28,8 +28,6 @@ export class MapRenderer {
     this.ctx = ctx;
 
     this.#scale = camera.scale;
-
-    camera.moveTo(this.#getStartPosition(map, bounds));
   }
 
   start() {
@@ -45,24 +43,6 @@ export class MapRenderer {
     };
 
     this.draw(this.camera.position);
-  }
-
-  #getStartPosition(map: CelesteMap, bounds: Bounds): Vector2 {
-    const startLevelName = map.meta?.modeMeta?.startLevel;
-    if (!startLevelName) {
-      return new Vector2(0, 0);
-    }
-
-    const startLevel = map.levels.get(startLevelName);
-    if (!startLevel) {
-      return new Vector2(0, 0);
-    }
-
-    const newPos = new Vector2(
-      startLevel.x - bounds.left - Camera.marginSize,
-      startLevel.y - bounds.top - Camera.marginSize,
-    );
-    return newPos;
   }
 
   levelIsInView(level: Level) {

@@ -35,7 +35,7 @@ async function showMap(mapZipData: MapZipData, modZipReader: ModZipReader) {
   header.innerText = map.package;
 
   const bounds = map.calculateBounds();
-  const camera = new Camera(canvasContainer, bounds);
+  const camera = new Camera(canvasContainer, map, bounds);
   const mapRenderer = new MapRenderer(map, bounds, camera);
   mapRenderer.start();
 }
@@ -78,5 +78,3 @@ async function readMod(modData: Promise<Response> | Promise<ArrayBuffer>) {
     console.error(ex);
   }
 }
-
-readMod(fetch("../testData/Monika's D-Sides.zip"));
