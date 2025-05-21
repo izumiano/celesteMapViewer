@@ -13,20 +13,17 @@ const modUploadInput = <HTMLInputElement>document.getElementById('modUpload');
 
 const originalMapListContent = mapList.innerHTML;
 
-modUploadInput.onchange = event => {
+modUploadInput.onchange = _ => {
   const files = modUploadInput.files;
   if (!files || files.length <= 0) {
     return;
   }
-
-  console.log('now');
 
   readMod(files[0].arrayBuffer());
 };
 
 gbLinkInput.onchange = _ => {
   console.log(gbLinkInput.value);
-  readMod(fetch("../testData/Monika's D-Sides.zip"));
 };
 
 async function showMap(mapZipData: MapZipData, modZipReader: ModZipReader) {
@@ -44,34 +41,42 @@ async function showMap(mapZipData: MapZipData, modZipReader: ModZipReader) {
 }
 
 async function readMod(modData: Promise<Response> | Promise<ArrayBuffer>) {
-  const modZipReader = new ModZipReader();
-  const awaitedModData = await modData;
-  const modZipData = await modZipReader.readMod(awaitedModData);
-
-  mapList.innerHTML = originalMapListContent;
-
-  for (const map of modZipData.maps) {
-    const option = document.createElement('option');
-    option.innerText = map.name;
-    option.value = map.name;
-    mapList.appendChild(option);
-  }
-  mapList.selectedIndex = 0;
-
-  mapList.onchange = _ => {
-    mapListPlaceholder.hidden = false;
-
-    const mapZipData = modZipData.maps[mapList.selectedIndex - 1];
-
-    if (!mapZipData) {
-      mapListPlaceholder.hidden = true;
-      throw new Error(
-        `Could not find ${mapList.options[mapList.selectedIndex - 1].value} in zip`,
-      );
+  try {
+    const modZipReader = new ModZipReader();
+    const awaitedModData = await modData;
+    if (awaitedModData instanceof Response && !awaitedModData.ok) {
+      const message = `Error: ${awaitedModData.status} - ${awaitedModData.statusText}`;
+      throw new Error(message);
     }
+    const modZipData = await modZipReader.readMod(awaitedModData);
 
-    showMap(mapZipData, modZipReader);
-  };
+    mapList.innerHTML = originalMapListContent;
+
+    for (const map of modZipData.maps) {
+      const option = document.createElement('option');
+      option.innerText = map.name;
+      option.value = map.name;
+      mapList.appendChild(option);
+    }
+    mapList.selectedIndex = 0;
+
+    mapList.onchange = _ => {
+      mapListPlaceholder.hidden = false;
+
+      const mapZipData = modZipData.maps[mapList.selectedIndex - 1];
+
+      if (!mapZipData) {
+        mapListPlaceholder.hidden = true;
+        throw new Error(
+          `Could not find ${mapList.options[mapList.selectedIndex - 1].value} in zip`,
+        );
+      }
+
+      showMap(mapZipData, modZipReader);
+    };
+  } catch (ex) {
+    console.error(ex);
+  }
 }
 
 readMod(fetch("../testData/Monika's D-Sides.zip"));
