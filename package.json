@@ -9,6 +9,7 @@
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
+    "build": "tsc --project tsconfig.prod.json",
     "fix": "gts fix",
     "prepare": "npm run compile",
     "pretest": "npm run compile",
