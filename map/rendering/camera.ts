@@ -76,7 +76,6 @@ export class Camera {
     this.position.y +=
       (globalZoomPoint.y / prevScale) * this.scale - globalZoomPoint.y;
 
-    // this.position = this.#getClampedPosition(this.position.x, this.position.y);
     this.moveTo(this.position);
 
     this.onResize && this.onResize();
