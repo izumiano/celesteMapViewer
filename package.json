@@ -11,8 +11,8 @@
     "compile": "tsc",
     "build": "tsc --project tsconfig.prod.json",
     "fix": "gts fix",
-    "prepare": "npm run compile",
-    "pretest": "npm run compile",
+    "prepare": "npm run build",
+    "pretest": "npm run build",
     "posttest": "npm run lint"
   },
   "dependencies": {

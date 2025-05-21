@@ -40,9 +40,7 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Install dependencies
-        run: 'npm install --production'
-      - name: Build with npm
-        run: 'npm run build'
+        run: 'npm install --omit=dev'
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
