@@ -3,6 +3,7 @@ import {MapRenderer} from './map/rendering/mapRenderer.js';
 import {Camera} from './map/rendering/camera.js';
 import {ModZipReader} from './data/modZipReader.js';
 import {MapZipData} from './data/modZipData.js';
+import ModDownloader from './utils/modDownloader.js';
 
 const canvasContainer = document.getElementById('canvasContainer')!;
 const header = document.getElementById('header')!;
@@ -27,8 +28,16 @@ if (files && files.length > 0) {
   readMod(files[0].arrayBuffer());
 }
 
-gbLinkInput.onchange = _ => {
-  console.log(gbLinkInput.value);
+gbLinkInput.onkeydown = event => {
+  if (event.key !== 'Enter') {
+    return;
+  }
+
+  const modDownloader = new ModDownloader();
+
+  modDownloader.download(gbLinkInput.value).then(mod => {
+    readMod(mod);
+  });
 };
 
 async function showMap(mapZipData: MapZipData, modZipReader: ModZipReader) {
@@ -45,7 +54,9 @@ async function showMap(mapZipData: MapZipData, modZipReader: ModZipReader) {
   mapRenderer.start();
 }
 
-async function readMod(modData: Promise<Response> | Promise<ArrayBuffer>) {
+async function readMod(
+  modData: Promise<Response> | Response | Promise<ArrayBuffer> | ArrayBuffer,
+) {
   console.debug('reading mod');
   try {
     const modZipReader = new ModZipReader();
