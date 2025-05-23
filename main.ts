@@ -35,8 +35,9 @@ gbLinkInput.onkeydown = event => {
 
   const modDownloader = new ModDownloader();
 
-  modDownloader.download(gbLinkInput.value).then(mod => {
-    readMod(mod);
+  modDownloader.download(gbLinkInput.value).then(async mod => {
+    await readMod(mod);
+    modUploadInput.value = '';
   });
 };
 
