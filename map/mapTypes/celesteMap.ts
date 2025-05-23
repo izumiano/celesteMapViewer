@@ -28,12 +28,28 @@ export class CelesteMap {
           break;
       }
     }
+
+    const modeMeta = this.meta?.modeMeta;
+    if (modeMeta && !modeMeta.startLevel) {
+      if (this.levels.size <= 0) {
+        return;
+      }
+
+      // TODO: Get the real startLevel when it isn't set in the metadata
+      const levelsIterator = this.levels.entries();
+      for (const [_, level] of levelsIterator) {
+        if (level.spawnPoints.length > 0) {
+          modeMeta.startLevel = level.name;
+          break;
+        }
+      }
+    }
   }
 
   getStartLevel() {
     const startLevelName = this.meta?.modeMeta?.startLevel;
     if (!startLevelName) {
-      console.error(`start level name not found for [${this.name}]`);
+      console.error(`start level name not found for [${this.package}]`);
       return null;
     }
 

@@ -1,5 +1,6 @@
 import {CelesteMap} from '../mapTypes/celesteMap.js';
-import {Entity} from '../mapTypes/entity.js';
+import {Entity} from '../mapTypes/entities/entity.js';
+import Spinner from '../mapTypes/entities/spinner.js';
 import {Level} from '../mapTypes/level.js';
 import {TileMatrix} from '../mapTypes/tileMatrix.js';
 import {Bounds} from '../utils/bounds.js';
@@ -133,7 +134,7 @@ export class MapRenderer {
   drawEntities(entities: Entity[], xOffset: number, yOffset: number) {
     const ctx = this.ctx;
     for (const entity of entities) {
-      if (entity.name === 'spinner') {
+      if (entity instanceof Spinner) {
         ctx.beginPath();
         ctx.arc(
           entity.x * this.#scale + xOffset,

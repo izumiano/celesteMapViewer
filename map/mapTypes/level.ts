@@ -1,4 +1,6 @@
-import {Entity} from './entity.js';
+import {Entity} from './entities/entity.js';
+import EntityFactory from './entities/entityFactory.js';
+import SpawnPoint from './entities/spawnPoint.js';
 import {TileMatrix} from './tileMatrix.js';
 
 export class Level {
@@ -17,6 +19,8 @@ export class Level {
   fgDecals: {[key: string]: any} | undefined = undefined;
   triggers: {[key: string]: any} | undefined = undefined;
   entities: Entity[] = [];
+
+  spawnPoints: SpawnPoint[] = [];
 
   static toLevelSet(levels: {[key: string]: any}): Map<string, Level> {
     const ret: Map<string, Level> = new Map();
@@ -64,7 +68,9 @@ export class Level {
           this.triggers = child;
           break;
         case 'entities':
-          this.entities = Entity.toEntityList(child.__children);
+          const entityFactory = new EntityFactory(child.__children);
+          this.entities = entityFactory.entities;
+          this.spawnPoints = entityFactory.spawnPoints;
           break;
         default:
           console.error(`unknows level child type ${childType}`);
