@@ -35,12 +35,16 @@ export class CelesteMap {
         return;
       }
 
-      // TODO: Get the real startLevel when it isn't set in the metadata
-      const levelsIterator = this.levels.entries();
-      for (const [_, level] of levelsIterator) {
+      let minDist = Infinity;
+      const zero = new Vector2(0, 0);
+      for (const [_, level] of this.levels.entries()) {
         if (level.spawnPoints.length > 0) {
-          modeMeta.startLevel = level.name;
-          break;
+          const pos = new Vector2(level.x, level.y);
+          const dist = pos.distance(zero);
+          if (dist < minDist) {
+            modeMeta.startLevel = level.name;
+            minDist = dist;
+          }
         }
       }
     }
