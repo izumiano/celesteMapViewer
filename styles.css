@@ -31,9 +31,54 @@ body {
 	color: black;
 }
 
-#topSection > #gbLinkInput {
-	font-size: 1rem;
+#gbLinkInputContainer {
+	display: inline-grid;
+}
+
+#gbLinkInputProgress {
+	--height: 4px;
+	grid-column-start: 1;
+	grid-row-start: 1;
+	align-self: end;
+	width: 0;
+	height: var(--height);
+	background-color: rgb(47, 105, 192);
+	border-radius: var(--height);
+}
+
+.progressBar {
+	--progress: 0;
+	width: calc(100% * var(--progress)) !important;
+}
+
+#gbLinkInput {
+	grid-column-start: 1;
+	grid-row-start: 1;
+	font-size: 0.8rem;
+	height: 3dvh;
 	background-color: var(--primaryColor);
+	border-color: gray;
+	transition: border-color 0.5s;
+}
+
+#gbLinkInput:invalid {
+	border-color: red;
+
+	animation: pop 0.3s forwards;
+}
+
+.pop {
+	animation: pop 0.3s forwards;
+}
+
+@keyframes pop {
+	50% {
+		scale: 1.1;
+	}
+
+	100% {
+		scale: 1;
+	}
 }
 
 #topSection > #modUpload {

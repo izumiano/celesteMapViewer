@@ -1,17 +1,31 @@
+import Result from './result.js';
+
 const corsProxy = 'https://cors-header-proxy.izumiano.workers.dev';
 
 export default class ModDownloader {
-  async download(url: string) {
+  async download(url: string): Promise<Result<Response>> {
     const modDownloadLink = await this.#getModDownloadLink(url);
 
     if (modDownloadLink === '') {
-      throw new Error('Download link is an empty string');
+      return Result.failure(new Error('Download link is an empty string'));
     }
 
     const request = `${corsProxy}/?url=${encodeURIComponent(modDownloadLink)}`;
     console.log(request);
 
-    return await fetch(request);
+    try {
+      const response = await fetch(request);
+      if (!response.ok) {
+        return Result.failure(
+          new Error(
+            `Failed downloading ${url}\nwith status code: ${response.status} ${response.statusText}`,
+          ),
+        );
+      }
+      return Result.success(response);
+    } catch (ex) {
+      return Result.failure(ex as Error);
+    }
   }
 
   async #getModDownloadLink(modLink: string): Promise<string> {

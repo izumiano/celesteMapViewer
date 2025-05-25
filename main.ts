@@ -2,8 +2,11 @@ import {MapBinReader} from './data/mapBinReader.js';
 import {MapRenderer} from './map/rendering/mapRenderer.js';
 import {Camera} from './map/rendering/camera.js';
 import ModDownloader from './utils/modDownloader.js';
-import {AbstractMapData} from './data/modData.js';
+import ModData, {AbstractMapData} from './data/modData.js';
 import {ModReader} from './data/modReader.js';
+import Result from './utils/result.js';
+import responseProgress, {OnProgress} from './utils/responseProgress.js';
+import {toArrayBuffer} from './utils/arrayBuffer.js';
 
 const canvasContainer = document.getElementById('canvasContainer')!;
 const header = document.getElementById('header')!;
@@ -11,36 +14,61 @@ const mapList = <HTMLSelectElement>document.getElementById('mapList');
 const mapListPlaceholder = document.getElementById('mapListPlaceholder')!;
 const gbLinkInput = <HTMLInputElement>document.getElementById('gbLinkInput');
 const modUploadInput = <HTMLInputElement>document.getElementById('modUpload');
+const gbLinkInputProgress = document.getElementById('gbLinkInputProgress')!;
 
 const originalMapListContent = mapList.innerHTML;
 
-modUploadInput.onchange = _ => {
-  const files = modUploadInput.files;
-  if (!files || files.length <= 0) {
-    return;
-  }
+const modReader = new ModReader();
 
-  readMod(files[0]);
+modUploadInput.onchange = async _ => {
+  const files = modUploadInput.files;
+  readLocalMod(files);
 };
 
 const files = modUploadInput.files;
-if (files && files.length > 0) {
-  readMod(files[0]);
-}
+readLocalMod(files);
 
-gbLinkInput.onkeydown = event => {
+gbLinkInput.oninput = _ => {
+  gbLinkInput.setCustomValidity('');
+};
+
+gbLinkInput.onkeydown = async event => {
   if (event.key !== 'Enter') {
     return;
   }
 
-  const modDownloader = new ModDownloader();
+  gbLinkInput.setCustomValidity('');
 
-  modDownloader.download(gbLinkInput.value).then(async mod => {
-    console.log(mod.headers);
-    await readMod(mod);
-    modUploadInput.value = '';
+  const readResult = await readModFromUrl(gbLinkInput.value, progress => {
+    gbLinkInputProgress.style.setProperty('--progress', progress.toString());
   });
+  if (readResult.isFailure) {
+    console.error(readResult.failure);
+    gbLinkInput.setCustomValidity('ERROR: ' + readResult.failure.message);
+  }
+
+  gbLinkInputProgress.style.setProperty('--progress', '0');
 };
+
+mapList.onanimationend = event => {
+  if (event.animationName === 'pop') {
+    mapList.classList.remove('pop');
+  }
+};
+
+async function readLocalMod(files: FileList | null) {
+  if (!files || files.length <= 0) {
+    return;
+  }
+
+  const modResult = await modReader.read(files[0]);
+  if (modResult.isFailure) {
+    console.error(modResult.failure);
+    return;
+  }
+
+  createModList(modResult.success);
+}
 
 async function showMap(mapData: AbstractMapData) {
   const mapBuffer = await mapData.readMap();
@@ -56,21 +84,38 @@ async function showMap(mapData: AbstractMapData) {
   mapRenderer.start();
 }
 
-async function readMod(
-  modBinData:
-    | Promise<Response>
-    | Response
-    | Promise<ArrayBuffer>
-    | ArrayBuffer
-    | File,
-) {
-  const modDataResult = await new ModReader().read(modBinData);
-  if (modDataResult.isFailure) {
-    console.error(modDataResult.failure);
-    return;
+async function readModFromUrl(
+  url: string,
+  onProgress: OnProgress,
+): Promise<Result<void>> {
+  const modDownloader = new ModDownloader();
+  const downloadResult = await modDownloader.download(url);
+  if (downloadResult.isFailure) {
+    return Result.failure(downloadResult.failure);
   }
-  const modData = modDataResult.success;
+  const downloadResponse = downloadResult.success;
 
+  const modResult = await responseProgress(downloadResponse, progress => {
+    progress *= 0.99;
+    onProgress(progress);
+  });
+  if (modResult.isFailure) {
+    return Result.failure(modResult.failure);
+  }
+
+  const modDataResult = await modReader.read(
+    toArrayBuffer(modResult.success.buffer),
+  );
+  if (modDataResult.isFailure) {
+    return Result.failure(modDataResult.failure);
+  }
+  onProgress(1);
+  await createModList(modDataResult.success);
+  modUploadInput.value = '';
+  return Result.success();
+}
+
+async function createModList(modData: ModData) {
   mapList.innerHTML = originalMapListContent;
 
   for (const map of modData.maps) {
@@ -79,20 +124,32 @@ async function readMod(
     option.value = map.name;
     mapList.appendChild(option);
   }
-  mapList.selectedIndex = 0;
+  const onlyOneMap = modData.maps.length === 1;
+  mapList.selectedIndex = onlyOneMap ? 1 : 0;
+
+  mapList.classList.add('pop');
+
+  if (onlyOneMap) {
+    showMap(modData.maps[0]);
+  }
 
   mapList.onchange = _ => {
-    mapListPlaceholder.hidden = false;
-
-    const mapZipData = modData.maps[mapList.selectedIndex - 1];
-
-    if (!mapZipData) {
-      mapListPlaceholder.hidden = true;
+    const index = mapList.selectedIndex - 1;
+    if (index < 0 || index > modData.maps.length) {
       throw new Error(
-        `Could not find ${mapList.options[mapList.selectedIndex - 1].value} in zip`,
+        `index ${index} was outside the bounds of the maps array`,
       );
     }
 
-    showMap(mapZipData);
+    mapListPlaceholder.hidden = false;
+
+    const mapData = modData.maps[index];
+
+    if (!mapData) {
+      mapListPlaceholder.hidden = true;
+      throw new Error(`Could not find ${mapList.options[index].value} in maps`);
+    }
+
+    showMap(mapData);
   };
 }

@@ -27,7 +27,7 @@ export default class Result<TValue> {
     this.#failure = failureVal;
   }
 
-  static success<T>(value: T) {
+  static success<T>(value: T | null = null) {
     return new Result(value, null);
   }
 
