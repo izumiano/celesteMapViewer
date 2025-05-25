@@ -26,11 +26,9 @@ export class AbstractMapData {
 
   #getName(path: string) {
     const lastIndexOfSlash = path.lastIndexOf('/');
-    const lastIndexOfDot = path.lastIndexOf('.');
+    let lastIndexOfDot = path.lastIndexOf('.');
 
-    if (lastIndexOfSlash === -1 || lastIndexOfDot === -1) {
-      return path;
-    }
+    lastIndexOfDot = lastIndexOfDot === -1 ? path.length - 1 : lastIndexOfDot;
 
     return path.substring(lastIndexOfSlash + 1, lastIndexOfDot);
   }
