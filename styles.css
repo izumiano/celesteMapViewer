@@ -13,6 +13,11 @@ body {
 	touch-action: none;
 }
 
+input::placeholder {
+	color: rgb(79, 81, 85);
+	background-color: var(--primaryColor);
+}
+
 #body {
 	height: 100%;
 }
@@ -54,8 +59,9 @@ body {
 #gbLinkInput {
 	grid-column-start: 1;
 	grid-row-start: 1;
-	font-size: 0.8rem;
-	height: 3dvh;
+	font-size: 0.9rem;
+	min-width: 25dvw;
+	height: 2.5dvh;
 	background-color: var(--primaryColor);
 	border-color: gray;
 	transition: border-color 0.5s;
@@ -86,12 +92,10 @@ body {
 	color: white;
 }
 
-#topSection > input::placeholder {
-	color: rgb(80, 80, 80);
-	background-color: var(--primaryColor);
-}
-
 #mapList {
+	min-width: 20dvw;
+	/* margin: 0 1dvw 0 1dvw; */
+	/* margin-left: 0.5%; */
 	width: fit-content;
 	font-size: 1rem;
 	display: block;
