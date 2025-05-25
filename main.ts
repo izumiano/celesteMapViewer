@@ -4,6 +4,7 @@ import {Camera} from './map/rendering/camera.js';
 import {ModZipReader} from './data/modZipReader.js';
 import {MapZipData} from './data/modZipData.js';
 import ModDownloader from './utils/modDownloader.js';
+import ModReader from './data/modReader.js';
 
 const canvasContainer = document.getElementById('canvasContainer')!;
 const header = document.getElementById('header')!;
@@ -56,43 +57,38 @@ async function showMap(mapZipData: MapZipData, modZipReader: ModZipReader) {
 }
 
 async function readMod(
-  modData: Promise<Response> | Response | Promise<ArrayBuffer> | ArrayBuffer,
+  modBinData: Promise<Response> | Response | Promise<ArrayBuffer> | ArrayBuffer,
 ) {
-  console.debug('reading mod');
-  try {
-    const modZipReader = new ModZipReader();
-    const awaitedModData = await modData;
-    if (awaitedModData instanceof Response && !awaitedModData.ok) {
-      const message = `Error: ${awaitedModData.status} - ${awaitedModData.statusText}`;
-      throw new Error(message);
-    }
-    const modZipData = await modZipReader.readMod(awaitedModData);
-
-    mapList.innerHTML = originalMapListContent;
-
-    for (const map of modZipData.maps) {
-      const option = document.createElement('option');
-      option.innerText = map.name;
-      option.value = map.name;
-      mapList.appendChild(option);
-    }
-    mapList.selectedIndex = 0;
-
-    mapList.onchange = _ => {
-      mapListPlaceholder.hidden = false;
-
-      const mapZipData = modZipData.maps[mapList.selectedIndex - 1];
-
-      if (!mapZipData) {
-        mapListPlaceholder.hidden = true;
-        throw new Error(
-          `Could not find ${mapList.options[mapList.selectedIndex - 1].value} in zip`,
-        );
-      }
-
-      showMap(mapZipData, modZipReader);
-    };
-  } catch (ex) {
-    console.error(ex);
+  const modZipReader = new ModZipReader();
+  const modDataResult = await new ModReader().read(modBinData, modZipReader);
+  if (modDataResult.isFailure) {
+    console.error(modDataResult.failure);
+    return;
   }
+  const modData = modDataResult.success;
+
+  mapList.innerHTML = originalMapListContent;
+
+  for (const map of modData.maps) {
+    const option = document.createElement('option');
+    option.innerText = map.name;
+    option.value = map.name;
+    mapList.appendChild(option);
+  }
+  mapList.selectedIndex = 0;
+
+  mapList.onchange = _ => {
+    mapListPlaceholder.hidden = false;
+
+    const mapZipData = modData.maps[mapList.selectedIndex - 1];
+
+    if (!mapZipData) {
+      mapListPlaceholder.hidden = true;
+      throw new Error(
+        `Could not find ${mapList.options[mapList.selectedIndex - 1].value} in zip`,
+      );
+    }
+
+    showMap(mapZipData, modZipReader);
+  };
 }

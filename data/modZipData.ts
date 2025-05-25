@@ -1,9 +1,11 @@
 import {Entry} from '../node_modules/@zip.js/zip.js/index.js';
+import ModData from './modData.js';
 
-export class ModZipData {
+export class ModZipData extends ModData {
   maps: MapZipData[] = [];
 
   constructor(entries: Entry[]) {
+    super();
     this.#populate(entries);
   }
 
