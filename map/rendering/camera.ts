@@ -10,6 +10,10 @@ export type OnMoveFunc = (position: Vector2) => void;
 export type OnResizeFunc = () => void;
 
 export class Camera {
+  static marginSize = 20;
+  static borderSize = 5; // size of the css border on canvasContainer
+  static sizeOffset = this.marginSize + this.borderSize * 2;
+
   position = new Vector2(-Camera.marginSize, -Camera.marginSize);
   mapBounds: Bounds;
   size = new Vector2(0, 0);
@@ -30,10 +34,6 @@ export class Camera {
 
     return null;
   }
-
-  static marginSize = 20;
-  static borderSize = 5; // size of the css border on canvasContainer
-  static sizeOffset = this.marginSize + this.borderSize * 2;
 
   constructor(element: HTMLElement, map: CelesteMap, bounds: Bounds) {
     this.#element = element;
