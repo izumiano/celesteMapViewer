@@ -1,10 +1,5 @@
-import {
-  BlobReader,
-  // @ts-ignore
-  Uint8ArrayWriter,
-  ZipReader,
-} from '../node_modules/@zip.js/zip.js/index.js';
-import {MapZipData, ModZipData} from './modZipData.js';
+import {BlobReader, ZipReader} from '../node_modules/@zip.js/zip.js/index.js';
+import {ModZipData} from './modZipData.js';
 
 export class ModZipReader {
   async readMod(zip: ArrayBuffer | Response) {
@@ -27,8 +22,14 @@ export class ModZipReader {
     return mapZipData;
   }
 
-  async readMap(mapZipData: MapZipData): Promise<Uint8Array<ArrayBufferLike>> {
-    const uint8ArrWriter = new Uint8ArrayWriter();
-    return await mapZipData.entry.getData!(uint8ArrWriter);
+  static isZip(buffer: ArrayBuffer) {
+    if (buffer.byteLength < 4) {
+      return false; // Not enough data to be a ZIP file
+    }
+
+    const view = new DataView(buffer);
+    const magicNumber = view.getUint32(0, false); // Read the first 4 bytes as an unsigned 32-bit integer (big-endian)
+
+    return magicNumber === 0x504b0304;
   }
 }

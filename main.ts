@@ -1,10 +1,9 @@
 import {MapBinReader} from './data/mapBinReader.js';
 import {MapRenderer} from './map/rendering/mapRenderer.js';
 import {Camera} from './map/rendering/camera.js';
-import {ModZipReader} from './data/modZipReader.js';
-import {MapZipData} from './data/modZipData.js';
 import ModDownloader from './utils/modDownloader.js';
-import ModReader from './data/modReader.js';
+import {AbstractMapData} from './data/modData.js';
+import {ModReader} from './data/modReader.js';
 
 const canvasContainer = document.getElementById('canvasContainer')!;
 const header = document.getElementById('header')!;
@@ -21,12 +20,12 @@ modUploadInput.onchange = _ => {
     return;
   }
 
-  readMod(files[0].arrayBuffer());
+  readMod(files[0]);
 };
 
 const files = modUploadInput.files;
 if (files && files.length > 0) {
-  readMod(files[0].arrayBuffer());
+  readMod(files[0]);
 }
 
 gbLinkInput.onkeydown = event => {
@@ -37,15 +36,16 @@ gbLinkInput.onkeydown = event => {
   const modDownloader = new ModDownloader();
 
   modDownloader.download(gbLinkInput.value).then(async mod => {
+    console.log(mod.headers);
     await readMod(mod);
     modUploadInput.value = '';
   });
 };
 
-async function showMap(mapZipData: MapZipData, modZipReader: ModZipReader) {
-  const mapData = await modZipReader.readMap(mapZipData);
+async function showMap(mapData: AbstractMapData) {
+  const mapBuffer = await mapData.readMap();
 
-  const map = await new MapBinReader().decodeData(mapData);
+  const map = await new MapBinReader().decodeData(mapBuffer);
   console.log(map);
 
   header.innerText = map.package;
@@ -57,10 +57,14 @@ async function showMap(mapZipData: MapZipData, modZipReader: ModZipReader) {
 }
 
 async function readMod(
-  modBinData: Promise<Response> | Response | Promise<ArrayBuffer> | ArrayBuffer,
+  modBinData:
+    | Promise<Response>
+    | Response
+    | Promise<ArrayBuffer>
+    | ArrayBuffer
+    | File,
 ) {
-  const modZipReader = new ModZipReader();
-  const modDataResult = await new ModReader().read(modBinData, modZipReader);
+  const modDataResult = await new ModReader().read(modBinData);
   if (modDataResult.isFailure) {
     console.error(modDataResult.failure);
     return;
@@ -89,6 +93,6 @@ async function readMod(
       );
     }
 
-    showMap(mapZipData, modZipReader);
+    showMap(mapZipData);
   };
 }

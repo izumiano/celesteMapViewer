@@ -1,9 +1,8 @@
 import {Entry} from '../node_modules/@zip.js/zip.js/index.js';
-import ModData from './modData.js';
+import {MapZipReader} from './mapReader.js';
+import ModData, {AbstractMapData} from './modData.js';
 
 export class ModZipData extends ModData {
-  maps: MapZipData[] = [];
-
   constructor(entries: Entry[]) {
     super();
     this.#populate(entries);
@@ -56,27 +55,12 @@ export class ModZipData extends ModData {
   }
 }
 
-export class MapZipData {
-  name: string;
-  path: string;
-
+export class MapZipData extends AbstractMapData {
   entry: Entry;
 
   constructor(path: string, entry: Entry) {
-    this.path = path;
+    super(path, new MapZipReader());
+
     this.entry = entry;
-
-    this.name = this.#getName(path);
-  }
-
-  #getName(path: string) {
-    const lastIndexOfSlash = path.lastIndexOf('/');
-    const lastIndexOfDot = path.lastIndexOf('.');
-
-    if (lastIndexOfSlash === -1 || lastIndexOfDot === -1) {
-      return path;
-    }
-
-    return path.substring(lastIndexOfSlash + 1, lastIndexOfDot);
   }
 }

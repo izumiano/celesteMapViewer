@@ -1,26 +1,46 @@
 import Result from '../utils/result.js';
-import {ModZipData} from './modZipData.js';
+import {MapReader} from './mapReader.js';
+import ModData, {AbstractMapData, MapData} from './modData.js';
 import {ModZipReader} from './modZipReader.js';
 
-export default class ModReader {
+export class ModReader {
   async read(
     modBinData:
       | Promise<Response>
       | Response
       | Promise<ArrayBuffer>
-      | ArrayBuffer,
-    modZipReader: ModZipReader,
-  ): Promise<Result<ModZipData>> {
+      | ArrayBuffer
+      | File,
+  ): Promise<Result<ModData>> {
     console.debug('reading mod');
-    try {
-      const awaitedModData = await modBinData;
-      if (awaitedModData instanceof Response && !awaitedModData.ok) {
+    let awaitedModData = await modBinData;
+    if (awaitedModData instanceof Response) {
+      if (!awaitedModData.ok) {
         const message = `Error: ${awaitedModData.status} - ${awaitedModData.statusText}`;
-        throw new Error(message);
+        return Result.failure(new Error(message));
       }
-      return Result.success(await modZipReader.readMod(awaitedModData));
-    } catch (ex) {
-      return Result.failure(ex as Error);
+      awaitedModData = await awaitedModData.arrayBuffer();
     }
+    return this.#read(awaitedModData);
+  }
+
+  async #read(modBinData: ArrayBuffer | File): Promise<Result<ModData>> {
+    let filename: string | null = null;
+    if (modBinData instanceof File) {
+      filename = modBinData.name;
+    }
+
+    const modBuffer =
+      modBinData instanceof File ? await modBinData.arrayBuffer() : modBinData;
+
+    if (ModZipReader.isZip(modBuffer)) {
+      const modZipReader = new ModZipReader();
+      return Result.success(await modZipReader.readMod(modBuffer));
+    }
+    if (await MapReader.isMap(modBuffer)) {
+      const modData = new ModData([new MapData(filename, modBuffer)]);
+      return Result.success(modData);
+    }
+    return Result.failure(new Error('modBinData was not any readable type'));
   }
 }
