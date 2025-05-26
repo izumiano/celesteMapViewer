@@ -1,3 +1,4 @@
+import Result from '../../utils/result.js';
 import {CelesteMap} from '../mapTypes/celesteMap.js';
 import {Entity} from '../mapTypes/entities/entity.js';
 import Spinner from '../mapTypes/entities/spinner.js';
@@ -6,6 +7,7 @@ import {TileMatrix} from '../mapTypes/tileMatrix.js';
 import {Bounds} from '../utils/bounds.js';
 import {Vector2} from '../utils/vector2.js';
 import {Camera} from './camera.js';
+import {Tileset} from './tileset.js';
 
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 
@@ -17,6 +19,8 @@ export class MapRenderer {
   bounds: Bounds;
   camera: Camera;
 
+  #abortController = new AbortController();
+
   constructor(map: CelesteMap, bounds: Bounds, camera: Camera) {
     this.map = map;
     this.bounds = bounds;
@@ -26,21 +30,26 @@ export class MapRenderer {
       throw new Error('ctx was null');
     }
 
+    ctx.imageSmoothingEnabled = false;
+
     this.ctx = ctx;
 
     this.#scale = camera.scale;
   }
 
   start() {
-    this.camera.start(position => {
-      this.draw(position);
+    this.camera.start(async position => {
+      this.#abortController.abort();
+      await this.draw(position);
     });
-    this.camera.onResize = () => {
-      this.draw(this.camera.position);
+    this.camera.onResize = async () => {
+      this.#abortController.abort();
+      await this.draw(this.camera.position);
     };
-    onresize = _ => {
+    onresize = async _ => {
+      this.#abortController.abort();
       this.camera.updateSize();
-      this.draw(this.camera.position);
+      await this.draw(this.camera.position);
     };
 
     this.draw(this.camera.position);
@@ -72,26 +81,39 @@ export class MapRenderer {
     return true;
   }
 
-  draw(position: Vector2) {
+  async draw(position: Vector2) {
+    this.#abortController = new AbortController();
+
     this.#scale = this.camera.scale;
 
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for (const level of this.map.levels.values()) {
-      this.drawLevel(level, position);
+    for await (const level of this.map.levels.values()) {
+      const drawLevelResult = await this.drawLevel(
+        level,
+        position,
+        this.#abortController,
+      );
+      if (drawLevelResult.isFailure) {
+        return;
+      }
     }
 
     // this.drawDebug();
   }
 
-  drawLevel(level: Level, position: Vector2) {
+  async drawLevel(
+    level: Level,
+    position: Vector2,
+    abortController: AbortController,
+  ) {
     const tiles = level.solids;
     if (!tiles) {
       console.error('Tiles was undefined');
-      return;
+      return Result.success();
     }
     if (!this.levelIsInView(level)) {
-      return;
+      return Result.success();
     }
 
     const ctx = this.ctx;
@@ -107,31 +129,69 @@ export class MapRenderer {
       level.height * this.#scale,
     );
 
-    this.drawSolids(tiles, levelX, levelY);
-    this.drawEntities(level.entities, levelX, levelY);
+    const drawSolidsResult = await this.drawSolids(
+      tiles,
+      levelX,
+      levelY,
+      abortController,
+    );
+    if (drawSolidsResult.isFailure) {
+      return Result.failure(drawSolidsResult.failure);
+    }
+    const drawEntitiesResult = this.drawEntities(
+      level.entities,
+      levelX,
+      levelY,
+      abortController,
+    );
+    if (drawEntitiesResult.isFailure) {
+      return Result.failure(drawEntitiesResult.failure);
+    }
 
     this.drawRoomLabel(level.name, levelX, levelY);
+
+    return Result.success();
   }
 
-  drawSolids(tiles: TileMatrix, xOffset: number, yOffset: number) {
+  async drawSolids(
+    tiles: TileMatrix,
+    xOffset: number,
+    yOffset: number,
+    abortController: AbortController,
+  ) {
     const ctx = this.ctx;
     ctx.strokeStyle = 'rgb(200 200 200)';
+    const tileScale = this.#scale * CelesteMap.tileMultiplier;
     for (let y = 0; y < tiles.height; y++) {
       for (let x = 0; x < tiles.width; x++) {
-        if (tiles.get(x, y) < 1) {
+        const tileId = tiles.get(x, y);
+        if (tileId < 1) {
           continue;
         }
-        ctx.strokeRect(
-          x * this.#scale * CelesteMap.tileMultiplier + xOffset,
-          y * this.#scale * CelesteMap.tileMultiplier + yOffset,
-          this.#scale * CelesteMap.tileMultiplier,
-          this.#scale * CelesteMap.tileMultiplier,
-        );
+
+        const xPosition = x * tileScale + xOffset;
+        const yPosition = y * tileScale + yOffset;
+
+        const tileset = await Tileset.getFromId(tileId);
+        const imageElement = await tileset.get(x);
+
+        ctx.drawImage(imageElement, xPosition, yPosition, tileScale, tileScale);
+
+        if (abortController.signal.aborted) {
+          return Result.failure(new Error(abortController.signal.reason));
+        }
       }
     }
+
+    return Result.success();
   }
 
-  drawEntities(entities: Entity[], xOffset: number, yOffset: number) {
+  drawEntities(
+    entities: Entity[],
+    xOffset: number,
+    yOffset: number,
+    abortController: AbortController,
+  ) {
     const ctx = this.ctx;
     for (const entity of entities) {
       if (entity instanceof Spinner) {
@@ -147,7 +207,13 @@ export class MapRenderer {
         ctx.closePath();
         ctx.stroke();
       }
+
+      if (abortController.signal.aborted) {
+        return Result.failure(abortController.signal.reason);
+      }
     }
+
+    return Result.success();
   }
 
   drawRoomLabel(label: string, xOffset: number, yOffset: number) {

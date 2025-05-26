@@ -12,6 +12,8 @@ export class TileMatrix {
   }
 
   constructor(tiles: string) {
+    tiles ??= '';
+
     tiles = tiles.replace('\r\n', '\n');
     const tileArr = tiles.split('\n');
 
@@ -26,13 +28,22 @@ export class TileMatrix {
       line += '0'.repeat(extraLength);
 
       for (const char of line) {
-        let num = parseInt(char);
-        if (isNaN(num)) {
-          num = char.charCodeAt(0) - 87;
-        }
-        this.#matrix.push(num);
+        this.#matrix.push(this.#getTileId(char));
       }
     }
+  }
+
+  #getTileId(char: string) {
+    const num = parseInt(char);
+    if (isNaN(num)) {
+      const charCode = char.charCodeAt(0);
+      if (charCode >= 65 && charCode <= 90) {
+        return charCode + 58;
+      } else {
+        return charCode - 87;
+      }
+    }
+    return num;
   }
 
   get(x: number, y: number) {
