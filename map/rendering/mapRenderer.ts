@@ -28,7 +28,7 @@ export class MapRenderer {
       throw new Error('ctx was null');
     }
 
-    this.roomRenderer = new RoomRenderer(ctx);
+    this.roomRenderer = new RoomRenderer(canvas, ctx);
 
     ctx.imageSmoothingEnabled = false;
     this.ctx = ctx;

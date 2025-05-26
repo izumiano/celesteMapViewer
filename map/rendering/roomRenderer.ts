@@ -5,16 +5,19 @@ import Spinner from '../mapTypes/entities/spinner.js';
 import {Level} from '../mapTypes/level.js';
 import {TileMatrix} from '../mapTypes/tileMatrix.js';
 import {Bounds} from '../utils/bounds.js';
+import {clampNormalize, plateauingSineEase} from '../utils/math.js';
 import {Vector2} from '../utils/vector2.js';
 import {Tileset} from './tileset.js';
 
 export default class RoomRenderer {
+  canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
 
   renderedRooms: Map<string, HTMLCanvasElement> = new Map();
 
-  constructor(ctx: CanvasRenderingContext2D) {
+  constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
+    this.canvas = canvas;
   }
 
   async drawLevel(
@@ -47,7 +50,7 @@ export default class RoomRenderer {
       abortController,
     );
     if (drawSolidsResult.isFailure) {
-      return drawSolidsResult.failure;
+      return Result.failure(drawSolidsResult.failure);
     }
     const drawEntitiesResult = this.drawEntities(
       level.entities,
@@ -60,7 +63,7 @@ export default class RoomRenderer {
       return Result.failure(drawEntitiesResult.failure);
     }
 
-    this.drawRoomLabel(level.name, levelX, levelY);
+    this.drawRoomLabel(level.name, levelX, levelY, scale);
 
     return Result.success();
   }
@@ -197,16 +200,44 @@ export default class RoomRenderer {
     return Result.success();
   }
 
-  drawRoomLabel(label: string, xOffset: number, yOffset: number) {
+  drawRoomLabel(
+    label: string,
+    xOffset: number,
+    yOffset: number,
+    scale: number,
+  ) {
     const ctx = this.ctx;
-    const fontSize = 10;
+    let fontSize = 15 * scale;
+
+    const boundingRect = this.canvas.getBoundingClientRect();
+
+    const normalized = clampNormalize(
+      fontSize / boundingRect.width,
+      0.004,
+      0.03,
+    );
+
+    const opacity = plateauingSineEase(normalized, 0.07, 0.4);
+
+    if (opacity <= 0.000001) {
+      return;
+    }
+
+    fontSize = Math.min(fontSize, 35);
+
+    const size = fontSize / 20;
+
     ctx.font = `${fontSize}px serif`;
     const textSize = ctx.measureText(label).width;
+    ctx.fillStyle = `rgb(0 0 0 / ${40 * opacity}%)`;
+    ctx.fillRect(
+      10 * scale + xOffset,
+      10 * scale + yOffset,
+      textSize + 15 * size,
+      fontSize + 10 * size,
+    );
 
-    ctx.fillStyle = 'rgb(0 0 0 / 40%)';
-    ctx.fillRect(10 + xOffset, 10 + yOffset, textSize + 15, fontSize + 10);
-
-    ctx.fillStyle = 'white';
-    ctx.fillText(label, 20 + xOffset, fontSize + 7 + yOffset);
+    ctx.fillStyle = `rgb(255 255 255 / ${100 * opacity}%)`;
+    ctx.fillText(label, fontSize + xOffset, fontSize + 10 * scale + yOffset);
   }
 }
