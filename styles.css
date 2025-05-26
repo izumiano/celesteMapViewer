@@ -22,18 +22,22 @@ input::placeholder {
 	height: 100%;
 }
 
-.flex {
+.flexCol {
 	display: flex;
 	flex-direction: column;
+}
+
+.flexRow {
+	display: flex;
+	flex-direction: row;
 }
 
 #topSection {
 	margin: 5px;
 }
 
-#topSection * {
-	margin-top: 5px;
-	color: black;
+#topSection > * {
+	margin: 2px;
 }
 
 #gbLinkInputContainer {
@@ -87,8 +91,58 @@ input::placeholder {
 	}
 }
 
-#topSection > #modUpload {
+.customFileUpload {
 	font-size: 1rem;
+	/* color: white; */
+	transition: color 0.5s, background-color 0.5s;
+	display: flex;
+	align-items: center;
+	align-self: center;
+	padding: 0 0.4rem 0 0.3rem;
+}
+
+.customFileUpload * {
+	height: fit-content;
+	color: white;
+	margin: 2px;
+}
+
+.fileUploadButton {
+	background-color: white;
+	color: black;
+	border-radius: 1rem;
+	padding: 0.1rem 0.5rem 0.1rem 0.5rem;
+	font-size: 0.8rem;
+	border: 0.2rem groove;
+	border-color: black;
+	transition: border-color 0.6s;
+}
+
+/*if pc*/
+@media (pointer: fine) {
+	.fileUploadButton:hover {
+		filter: brightness(85%);
+	}
+
+	.fileUploadButton:active {
+		filter: brightness(60%);
+	}
+}
+
+.customFileUpload input[type="file"] {
+	display: none;
+}
+
+.customFileUpload:has(>#modUpload:invalid) {
+	/* color: white; */
+	animation: pop 0.3s forwards;
+}
+
+.customFileUpload:has(>#modUpload:invalid) .fileUploadButton {
+	border-color: red;
+}
+
+#modUpload {
 	color: white;
 }
 

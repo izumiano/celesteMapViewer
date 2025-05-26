@@ -9,13 +9,19 @@
 </head>
 
 <body>
-	<div id="body" class="flex">
+	<div id="body" class="flexCol">
 		<div id="topSection">
-			<div id="gbLinkInputContainer">
-				<input type="text" id="gbLinkInput" placeholder="GameBanana Link">
-				<div id="gbLinkInputProgress" class="progressBar"></div>
+			<div class="flexRow">
+				<div id="gbLinkInputContainer">
+					<input type="text" id="gbLinkInput" placeholder="GameBanana Link">
+					<div id="gbLinkInputProgress" class="progressBar"></div>
+				</div>
+				<label class="customFileUpload">
+					<input type="file" id="modUpload" />
+					<div onclick="" class="fileUploadButton">Browse...</div>
+					<div id="modUploadFileName"></div>
+				</label>
 			</div>
-			<input type="file" id="modUpload">
 			<select name="mapList" id="mapList">
 				<option hidden disabled selected value id="mapListPlaceholder"> -- select a map -- </option>
 			</select>

@@ -14,6 +14,7 @@ const mapList = <HTMLSelectElement>document.getElementById('mapList');
 const mapListPlaceholder = document.getElementById('mapListPlaceholder')!;
 const gbLinkInput = <HTMLInputElement>document.getElementById('gbLinkInput');
 const modUploadInput = <HTMLInputElement>document.getElementById('modUpload');
+const modUploadFileName = document.getElementById('modUploadFileName')!;
 const gbLinkInputProgress = document.getElementById('gbLinkInputProgress')!;
 
 const originalMapListContent = mapList.innerHTML;
@@ -61,8 +62,11 @@ async function readLocalMod(files: FileList | null) {
     return;
   }
 
+  modUploadInput.setCustomValidity('');
+  modUploadFileName.innerText = files[0].name;
   const modResult = await modReader.read(files[0]);
   if (modResult.isFailure) {
+    modUploadInput.setCustomValidity('ERROR: ' + modResult.failure.message);
     console.error(modResult.failure);
     return;
   }
