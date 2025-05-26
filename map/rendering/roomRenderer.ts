@@ -38,9 +38,6 @@ export default class RoomRenderer {
     const levelX = (level.x - bounds.left) * scale - position.x;
     const levelY = (level.y - bounds.top) * scale - position.y;
 
-    ctx.strokeStyle = 'rgb(0 0 0 / 40%)';
-    ctx.strokeRect(levelX, levelY, level.width * scale, level.height * scale);
-
     const drawSolidsResult = await this.drawSolids(
       level,
       tiles,
@@ -62,6 +59,10 @@ export default class RoomRenderer {
     if (drawEntitiesResult.isFailure) {
       return Result.failure(drawEntitiesResult.failure);
     }
+
+    ctx.strokeStyle = 'rgb(113,65,101)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(levelX, levelY, level.width * scale, level.height * scale);
 
     this.drawRoomLabel(level.name, levelX, levelY, scale);
 
@@ -146,8 +147,13 @@ export default class RoomRenderer {
     }
     const canvas = canvasResult.success;
 
+    const ctx = this.ctx;
+
     try {
-      this.ctx.drawImage(
+      ctx.fillStyle = 'rgb(41, 20, 36)';
+      ctx.fillRect(xOffset, yOffset, level.width * scale, level.height * scale);
+
+      ctx.drawImage(
         canvas,
         xOffset,
         yOffset,
@@ -177,6 +183,7 @@ export default class RoomRenderer {
   ) {
     const ctx = this.ctx;
     ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1;
     for (const entity of entities) {
       if (entity instanceof Spinner) {
         ctx.beginPath();

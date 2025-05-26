@@ -1,6 +1,6 @@
 :root {
 	--margin: 0.5rem;
-	--backgroundColor: rgb(24, 16, 23);
+	--backgroundColor: rgb(12, 3, 10);
 	--primaryColor: rgb(170, 144, 166)
 }
 
@@ -148,8 +148,7 @@ input::placeholder {
 
 #mapList {
 	min-width: 20dvw;
-	/* margin: 0 1dvw 0 1dvw; */
-	/* margin-left: 0.5%; */
+	color: black;
 	width: fit-content;
 	font-size: 1rem;
 	display: block;
