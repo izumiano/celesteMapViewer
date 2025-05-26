@@ -111,7 +111,7 @@ export class Tileset {
       case 21:
         return 'deadgrass';
       case 22:
-        return 'lostLevels';
+        return 'lostlevels';
       case 23:
         return 'scifi';
       case 35:
