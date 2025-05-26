@@ -9,13 +9,15 @@ export class CelesteMap {
   name: string;
   package: string;
   levels: Map<string, Level> = new Map();
-  meta: MapMeta | null = null;
+  meta: MapMeta;
 
   constructor(map: {[key: string]: any}) {
     console.debug(map);
 
     this.name = map.__name;
     this.package = map._package;
+
+    let meta;
 
     const children = map.__children;
     for (const child of children) {
@@ -24,14 +26,20 @@ export class CelesteMap {
           this.levels = Level.toLevelSet(child.__children);
           break;
         case 'meta':
-          this.meta = new MapMeta(child);
+          meta = new MapMeta(child);
           break;
       }
     }
 
-    const modeMeta = this.meta?.modeMeta;
+    if (!meta) {
+      meta = new MapMeta();
+    }
+    this.meta = meta;
+
+    const modeMeta = this.meta.modeMeta;
     if (modeMeta && !modeMeta.startLevel) {
       if (this.levels.size <= 0) {
+        console.warn('Map has no levels');
         return;
       }
 

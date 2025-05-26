@@ -1,7 +1,12 @@
 export class MapMeta {
   modeMeta: ModeMeta | null = null;
 
-  constructor(meta: any) {
+  constructor(meta: any = null) {
+    if (!meta) {
+      this.modeMeta = new ModeMeta();
+      return;
+    }
+
     const children = meta.__children;
 
     for (const child of children) {
@@ -15,9 +20,14 @@ export class MapMeta {
 }
 
 class ModeMeta {
-  startLevel: string;
+  startLevel: string | undefined;
 
-  constructor(meta: any) {
+  constructor(meta: any = null) {
+    if (!meta) {
+      this.startLevel = undefined;
+      return;
+    }
+
     this.startLevel = meta.StartLevel;
   }
 }
