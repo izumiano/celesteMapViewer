@@ -1,14 +1,9 @@
-import Result from '../../utils/result.js';
 import {CelesteMap} from '../mapTypes/celesteMap.js';
-import {Entity} from '../mapTypes/entities/entity.js';
-import Spinner from '../mapTypes/entities/spinner.js';
 import {Level} from '../mapTypes/level.js';
-import {TileMatrix} from '../mapTypes/tileMatrix.js';
 import {Bounds} from '../utils/bounds.js';
 import {Vector2} from '../utils/vector2.js';
 import {Camera} from './camera.js';
 import RoomRenderer from './roomRenderer.js';
-import {Tileset} from './tileset.js';
 
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 

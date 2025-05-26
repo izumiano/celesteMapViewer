@@ -11,6 +11,8 @@ import {Tileset} from './tileset.js';
 export default class RoomRenderer {
   ctx: CanvasRenderingContext2D;
 
+  renderedRooms: Map<string, HTMLCanvasElement> = new Map();
+
   constructor(ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
   }
@@ -37,6 +39,7 @@ export default class RoomRenderer {
     ctx.strokeRect(levelX, levelY, level.width * scale, level.height * scale);
 
     const drawSolidsResult = await this.drawSolids(
+      level,
       tiles,
       scale,
       levelX,
@@ -44,7 +47,7 @@ export default class RoomRenderer {
       abortController,
     );
     if (drawSolidsResult.isFailure) {
-      return Result.failure(drawSolidsResult.failure);
+      return drawSolidsResult.failure;
     }
     const drawEntitiesResult = this.drawEntities(
       level.entities,
@@ -62,16 +65,20 @@ export default class RoomRenderer {
     return Result.success();
   }
 
-  async drawSolids(
+  async createRoomCanvas(
     tiles: TileMatrix,
-    scale: number,
-    xOffset: number,
-    yOffset: number,
     abortController: AbortController,
-  ) {
-    const ctx = this.ctx;
+  ): Promise<Result<HTMLCanvasElement>> {
+    const canvas = document.createElement('canvas');
+    canvas.width = tiles.width * CelesteMap.tileMultiplier;
+    canvas.height = tiles.height * CelesteMap.tileMultiplier;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.error('ctx was undefined');
+      return Result.failure(new Error('ctx was undefined'));
+    }
+
     ctx.strokeStyle = 'rgb(200 200 200)';
-    const tileScale = scale * CelesteMap.tileMultiplier;
     for (let y = 0; y < tiles.height; y++) {
       for (let x = 0; x < tiles.width; x++) {
         const tileId = tiles.get(x, y);
@@ -79,17 +86,79 @@ export default class RoomRenderer {
           continue;
         }
 
-        const xPosition = x * tileScale + xOffset;
-        const yPosition = y * tileScale + yOffset;
-
         const tileset = await Tileset.getFromId(tileId);
         const imageElement = await tileset.get(x);
 
-        ctx.drawImage(imageElement, xPosition, yPosition, tileScale, tileScale);
+        ctx.drawImage(
+          imageElement,
+          x * CelesteMap.tileMultiplier,
+          y * CelesteMap.tileMultiplier,
+          CelesteMap.tileMultiplier,
+          CelesteMap.tileMultiplier,
+        );
 
         if (abortController.signal.aborted) {
           return Result.failure(new Error(abortController.signal.reason));
         }
+      }
+    }
+
+    return Result.success(canvas);
+  }
+
+  async getRoomCanvas(
+    level: Level,
+    tiles: TileMatrix,
+    abortController: AbortController,
+  ): Promise<Result<HTMLCanvasElement>> {
+    if (this.renderedRooms.has(level.name)) {
+      return Result.success(this.renderedRooms.get(level.name));
+    }
+
+    const canvasResult = await this.createRoomCanvas(tiles, abortController);
+    if (canvasResult.isFailure) {
+      return Result.failure(canvasResult.failure);
+    }
+    const canvas = canvasResult.success;
+
+    this.renderedRooms.set(level.name, canvas);
+    return Result.success(canvas);
+  }
+
+  async drawSolids(
+    level: Level,
+    tiles: TileMatrix,
+    scale: number,
+    xOffset: number,
+    yOffset: number,
+    abortController: AbortController,
+  ) {
+    const canvasResult = await this.getRoomCanvas(
+      level,
+      tiles,
+      abortController,
+    );
+    if (canvasResult.isFailure) {
+      return Result.failure(canvasResult.failure);
+    }
+    const canvas = canvasResult.success;
+
+    try {
+      this.ctx.drawImage(
+        canvas,
+        xOffset,
+        yOffset,
+        canvas.width * scale,
+        canvas.height * scale,
+      );
+    } catch (ex) {
+      const err = ex as Error;
+      if (
+        err.name !== 'InvalidStateError' ||
+        err.message !==
+          'CanvasRenderingContext2D.drawImage: Passed-in canvas is empty'
+      ) {
+        console.error(ex);
       }
     }
 
@@ -104,6 +173,7 @@ export default class RoomRenderer {
     abortController: AbortController,
   ) {
     const ctx = this.ctx;
+    ctx.strokeStyle = 'white';
     for (const entity of entities) {
       if (entity instanceof Spinner) {
         ctx.beginPath();
