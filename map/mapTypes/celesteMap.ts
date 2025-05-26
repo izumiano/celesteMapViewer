@@ -88,15 +88,9 @@ export class CelesteMap {
         continue;
       }
 
-      maxWidth = Math.max(
-        maxWidth,
-        level.x + tiles.width * CelesteMap.tileMultiplier,
-      );
+      maxWidth = Math.max(maxWidth, level.x + level.width);
       minWidth = Math.min(minWidth, level.x);
-      maxHeight = Math.max(
-        maxHeight,
-        level.y + tiles.height * CelesteMap.tileMultiplier,
-      );
+      maxHeight = Math.max(maxHeight, level.y + level.height);
       minHeight = Math.min(minHeight, level.y);
     }
 
