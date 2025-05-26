@@ -10,7 +10,7 @@ export class ModReader {
       | Response
       | Promise<ArrayBuffer>
       | ArrayBuffer
-      | File,
+      | FileList,
   ): Promise<Result<ModData>> {
     console.debug('reading mod');
     let awaitedModData = await modBinData;
@@ -21,7 +21,42 @@ export class ModReader {
       }
       awaitedModData = await awaitedModData.arrayBuffer();
     }
+
+    if (awaitedModData instanceof FileList) {
+      return this.#readMultiple(awaitedModData);
+    }
+
     return this.#read(awaitedModData);
+  }
+
+  async #readMultiple(files: FileList): Promise<Result<ModData>> {
+    const mod = new ModData();
+
+    const errors = [];
+    for (const file of files) {
+      const modDataResult = await this.#read(file);
+      if (modDataResult.isFailure) {
+        errors.push(modDataResult.failure);
+        continue;
+      }
+
+      mod.maps = mod.maps.concat(modDataResult.success.maps);
+    }
+    if (errors.length > 0) {
+      return Result.failure(
+        new Error(
+          errors
+            .map(error => {
+              return error.message;
+            })
+            .reduce((prev, curr) => {
+              return prev + '\n' + curr;
+            }),
+        ),
+      );
+    }
+
+    return Result.success(mod);
   }
 
   async #read(modBinData: ArrayBuffer | File): Promise<Result<ModData>> {

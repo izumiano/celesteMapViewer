@@ -63,8 +63,14 @@ async function readLocalMod(files: FileList | null) {
   }
 
   modUploadInput.setCustomValidity('');
-  modUploadFileName.innerText = files[0].name;
-  const modResult = await modReader.read(files[0]);
+  modUploadFileName.innerText = Array.from(files)
+    .map(file => {
+      return file.name;
+    })
+    .reduce((prev, curr) => {
+      return prev + ', ' + curr;
+    });
+  const modResult = await modReader.read(files);
   if (modResult.isFailure) {
     modUploadInput.setCustomValidity('ERROR: ' + modResult.failure.message);
     console.error(modResult.failure);
