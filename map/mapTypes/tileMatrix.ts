@@ -1,5 +1,5 @@
 export class TileMatrix {
-  #matrix: number[] = [];
+  #matrix: Tile[] = [];
   #width = 0;
   #height = 0;
 
@@ -14,7 +14,7 @@ export class TileMatrix {
   constructor(tiles: string) {
     tiles ??= '';
 
-    tiles = tiles.replace('\r\n', '\n');
+    tiles = tiles.replaceAll('\r\n', '\n');
     const tileArr = tiles.split('\n');
 
     this.#height = tileArr.length;
@@ -28,22 +28,9 @@ export class TileMatrix {
       line += '0'.repeat(extraLength);
 
       for (const char of line) {
-        this.#matrix.push(this.#getTileId(char));
+        this.#matrix.push(new Tile(char.charCodeAt(0)));
       }
     }
-  }
-
-  #getTileId(char: string) {
-    const num = parseInt(char);
-    if (isNaN(num)) {
-      const charCode = char.charCodeAt(0);
-      if (charCode >= 65 && charCode <= 90) {
-        return charCode + 58;
-      } else {
-        return charCode - 87;
-      }
-    }
-    return num;
   }
 
   get(x: number, y: number) {
@@ -51,14 +38,22 @@ export class TileMatrix {
   }
 
   toArr() {
-    const ret: number[][] = [];
+    const ret: Tile[][] = [];
     for (let y = 0; y < this.height; y++) {
-      const arr: number[] = [];
+      const arr: Tile[] = [];
       for (let x = 0; x < this.width; x++) {
         arr.push(this.get(x, y));
       }
       ret.push(arr);
     }
     return ret;
+  }
+}
+
+export class Tile {
+  id: number;
+
+  constructor(id: number) {
+    this.id = id;
   }
 }

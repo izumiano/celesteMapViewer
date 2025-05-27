@@ -1,4 +1,5 @@
 import {CelesteMap} from '../mapTypes/celesteMap.js';
+import {Tile} from '../mapTypes/tileMatrix.js';
 import {Vector2} from '../utils/vector2.js';
 
 export class Tileset {
@@ -16,7 +17,7 @@ export class Tileset {
     );
   }
 
-  async get(id: number) {
+  async getImage(id: number) {
     if (this.tiles.has(id)) {
       return this.tiles.get(id)!;
     }
@@ -42,7 +43,7 @@ export class Tileset {
     return image;
   }
 
-  static async get(id: number, imageName: string) {
+  static async #get(id: number, imageName: string) {
     if (this.tilesets.has(id)) {
       return this.tilesets.get(id)!;
     }
@@ -64,62 +65,64 @@ export class Tileset {
     return tileset;
   }
 
-  static async getFromId(id: number) {
-    return this.get(id, this.nameFromId(id));
+  static async get(tile: Tile) {
+    return this.#get(tile.id, this.nameFromId(tile.id));
   }
 
   static nameFromId(id: number) {
-    switch (id) {
-      case 1:
+    switch (String.fromCodePoint(id)) {
+      case '1':
         return 'dirt';
-      case 3:
+      case '3':
         return 'snow';
-      case 4:
+      case '4':
         return 'girder';
-      case 5:
+      case '5':
         return 'tower';
-      case 6:
+      case '6':
         return 'stone';
-      case 7:
+      case '7':
         return 'cement';
-      case 8:
+      case '8':
         return 'rock';
-      case 9:
+      case '9':
         return 'wood';
-      case 10:
+      case 'a':
         return 'woodStoneEdges';
-      case 11:
+      case 'b':
         return 'cliffside';
-      case 12:
+      case 'c':
         return 'poolEdges';
-      case 13:
+      case 'd':
         return 'templeA';
-      case 14:
+      case 'e':
         return 'templeB';
-      case 15:
+      case 'f':
         return 'cliffsideAlt';
-      case 16:
+      case 'g':
         return 'reflection';
-      case 17:
-        return 'grass';
-      case 18:
-        return 'summit';
-      case 19:
-        return 'summitNoSnow';
-      case 20:
-        return 'core';
-      case 21:
-        return 'deadgrass';
-      case 22:
-        return 'lostlevels';
-      case 23:
-        return 'scifi';
-      case 35:
-        return 'template';
-      case 129:
+      case 'G':
         return 'reflectionAlt';
+      case 'h':
+        return 'grass';
+      case 'i':
+        return 'summit';
+      case 'j':
+        return 'summitNoSnow';
+      case 'k':
+        return 'core';
+      case 'l':
+        return 'deadgrass';
+      case 'm':
+        return 'lostlevels';
+      case 'n':
+        return 'scifi';
+      case 'z':
+        return 'template';
       default:
-        console.warn(`missing tile id ${id}`);
+        console.warn(
+          `missing tile id: {${String.fromCodePoint(id)}} charCode: {${id}}`,
+        );
         return 'missing';
     }
   }

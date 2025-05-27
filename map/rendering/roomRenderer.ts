@@ -86,12 +86,13 @@ export default class RoomRenderer {
     for (let y = 0; y < tiles.height; y++) {
       for (let x = 0; x < tiles.width; x++) {
         const tileId = tiles.get(x, y);
-        if (tileId < 1) {
+        // 48 is unicode for "0"
+        if (tileId.id === 48) {
           continue;
         }
 
-        const tileset = await Tileset.getFromId(tileId);
-        const imageElement = await tileset.get(x);
+        const tileset = await Tileset.get(tileId);
+        const imageElement = await tileset.getImage(x);
 
         ctx.drawImage(
           imageElement,
