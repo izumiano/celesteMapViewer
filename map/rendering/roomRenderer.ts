@@ -5,7 +5,7 @@ import Spinner from '../mapTypes/entities/spinner.js';
 import {Level} from '../mapTypes/level.js';
 import {TileMatrix} from '../mapTypes/tileMatrix.js';
 import {Bounds} from '../utils/bounds.js';
-import {clampNormalize, plateauingSineEase} from '../utils/math.js';
+import {clampNormalize, plateauingSineEase} from '../../utils/math.js';
 import {Vector2} from '../utils/vector2.js';
 import {Tileset} from './tileset.js';
 
@@ -111,6 +111,7 @@ export default class RoomRenderer {
       return Result.failure(new Error('ctx was undefined'));
     }
 
+    ctx.imageSmoothingEnabled = false;
     ctx.strokeStyle = 'rgb(200 200 200)';
     for (let y = 0; y < tiles.height; y++) {
       for (let x = 0; x < tiles.width; x++) {

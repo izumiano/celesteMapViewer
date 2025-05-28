@@ -87,7 +87,7 @@ export class MapRenderer {
 
     await this.#drawRooms(position);
 
-    this.drawDebug();
+    // this.drawDebug();
   }
 
   async #drawRooms(position: Vector2) {

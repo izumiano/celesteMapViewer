@@ -1,3 +1,4 @@
+import {getRandomInt} from '../../utils/math.js';
 import {CelesteMap} from '../mapTypes/celesteMap.js';
 import {Adjacents, Tile} from '../mapTypes/tileMatrix.js';
 import {Vector2} from '../utils/vector2.js';
@@ -18,9 +19,6 @@ export class Tileset {
     const image = new Image();
 
     const tilesetInfo = TilesetInfo.lazyGet(tile.idChar);
-    // console.log(tile.idChar);
-    // console.log(TilesetInfo.tilesetInfos);
-    // console.log(tilesetInfo);
 
     await new Promise((resolve, reject) => {
       image.onload = () => {
@@ -43,8 +41,7 @@ export class Tileset {
     let id = 0;
 
     const tileCoordinate =
-      this.tilesetInfo?.getMatch(tile.adjacents)?.chooseTile() ??
-      new Vector2(0, 0);
+      this.tilesetInfo?.getMatch(tile)?.chooseTile() ?? new Vector2(0, 0);
 
     const image = await window.createImageBitmap(
       this.image,
@@ -119,13 +116,14 @@ export class TilesetInfo {
     }
   }
 
-  getMatch(adjacents: Adjacents | null) {
+  getMatch(tile: Tile) {
+    const adjacents = tile.adjacents;
     if (!adjacents) {
       return null;
     }
 
     for (const tileInfo of this.tileInfos) {
-      if (tileInfo.match(adjacents, this.ignores)) {
+      if (tileInfo.match(tile, adjacents, this.ignores)) {
         return tileInfo;
       }
     }
@@ -136,6 +134,7 @@ export class TilesetInfo {
     if (this.tilesetInfos.has(id)) {
       return this.tilesetInfos.get(id)!;
     }
+    console.warn(`id: ${id} not in tileset infos`);
     return this.tilesetInfos.get('1')!;
   }
 
@@ -166,7 +165,7 @@ class TileInfo {
   #tiles: Vector2[];
 
   chooseTile() {
-    return this.#tiles[0];
+    return this.#tiles[getRandomInt(0, this.#tiles.length - 1)];
   }
 
   constructor(tileInfo: Element) {
@@ -192,19 +191,39 @@ class TileInfo {
     });
   }
 
-  match(adjacents: Adjacents, ignores: string | null) {
-    if (this.#mask === 'padding' || this.#mask === 'center') {
-      return false;
+  match(tile: Tile, adjacents: Adjacents, ignores: string | null) {
+    if (this.#mask === 'padding') {
+      if (!this.#match(tile, adjacents, '111111111', ignores)) {
+        return false;
+      }
+      return !adjacents.isCenter(ignores, tile);
     }
 
-    for (let i = 0; i < this.#mask.length; i++) {
-      const maskTile = this.#mask[i];
+    if (this.#mask === 'center') {
+      if (!this.#match(tile, adjacents, '111111111', ignores)) {
+        return false;
+      }
+      return adjacents.isCenter(ignores, tile);
+    }
+
+    return this.#match(tile, adjacents, this.#mask, ignores);
+  }
+
+  #match(
+    tile: Tile,
+    adjacents: Adjacents,
+    mask: string,
+    ignores: string | null,
+  ) {
+    for (let i = 0; i < mask.length; i++) {
+      const maskTile = mask[i];
       const adjacentTile = adjacents.getAtIndex(i);
       const isSolid = adjacentTile.isSolid();
-      const ignore = ignores?.includes(adjacentTile.idChar) ?? false;
+      const ignore = adjacents.isIgnoreSolid(ignores, adjacentTile, tile);
+
       if (
         maskTile === 'x' ||
-        (maskTile === '0' && !isSolid) ||
+        (maskTile === '0' && (!isSolid || ignore)) ||
         (maskTile === '1' && isSolid && !ignore)
       ) {
         continue;

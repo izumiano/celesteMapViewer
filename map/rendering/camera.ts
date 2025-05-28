@@ -3,6 +3,7 @@ import {Level} from '../mapTypes/level.js';
 import {Bounds} from '../utils/bounds.js';
 import {Vector2} from '../utils/vector2.js';
 import {InputHandler, MouseHandler, TouchHandler} from './inputHandler.js';
+import {Tileset} from './tileset.js';
 
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 

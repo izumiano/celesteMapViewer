@@ -3,6 +3,7 @@ import {Bounds} from '../utils/bounds.js';
 import {Vector2} from '../utils/vector2.js';
 import {Level} from './level.js';
 import {MapMeta} from './mapMeta.js';
+import {Tile} from './tileMatrix.js';
 
 export class CelesteMap {
   static tileMultiplier = 8;
@@ -98,7 +99,21 @@ export class CelesteMap {
       pos.x - (level.x - this.bounds.left) / CelesteMap.tileMultiplier,
       pos.y - (level.y - this.bounds.top) / CelesteMap.tileMultiplier,
     );
-    return level.solids?.get(levelGridPos.x, levelGridPos.y);
+    return level.solids?.get(levelGridPos.x, levelGridPos.y) ?? Tile.air();
+  }
+
+  /**
+   *
+   * @param pos A world space tile grid position
+   */
+  isSolidAt(pos: Vector2, voidIsSolid = true) {
+    const tile = this.getTileAt(pos);
+
+    if (!tile) {
+      return voidIsSolid;
+    }
+
+    return tile.isSolid();
   }
 
   getStartLevel() {
