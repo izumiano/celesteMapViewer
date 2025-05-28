@@ -19,9 +19,9 @@ export class MapRenderer {
 
   #abortController = new AbortController();
 
-  constructor(map: CelesteMap, bounds: Bounds, camera: Camera) {
+  constructor(map: CelesteMap, camera: Camera) {
     this.map = map;
-    this.bounds = bounds;
+    this.bounds = map.bounds;
     this.camera = camera;
     const ctx = canvas.getContext('2d');
     if (ctx === null) {
@@ -87,7 +87,7 @@ export class MapRenderer {
 
     await this.#drawRooms(position);
 
-    // this.drawDebug();
+    this.drawDebug();
   }
 
   async #drawRooms(position: Vector2) {
@@ -169,13 +169,29 @@ export class MapRenderer {
     ctx.closePath();
   }
 
+  // drawMouseDebug() {
+  //   const ctx = this.ctx;
+
+  //   const gridPos = this.camera.worldSpaceToCameraGrid(
+  //     this.camera.screenSpaceToWorld(this.#mousePos),
+  //   );
+  //   ctx.strokeRect(
+  //     gridPos.x,
+  //     gridPos.y,
+  //     CelesteMap.tileMultiplier * this.#scale,
+  //     CelesteMap.tileMultiplier * this.#scale,
+  //   );
+  // }
+
   drawDebug() {
     const ctx = this.ctx;
     //
     ctx.font = `15px serif`;
-    ctx.fillStyle = 'black';
+    ctx.fillStyle = 'white';
 
-    this.drawTouchDebug();
+    // this.drawTouchDebug();
+
+    // this.drawMouseDebug();
 
     // Top
     ctx.strokeRect(this.camera.size.x / 2, 0, 0, 20);

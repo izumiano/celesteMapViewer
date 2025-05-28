@@ -11,6 +11,7 @@ export class CelesteMap {
   package: string;
   levels: Map<string, Level> = new Map();
   meta: MapMeta;
+  bounds: Bounds = new Bounds(new Vector2(0, 0), new Vector2(0, 0));
 
   constructor(map: {[key: string]: any}) {
     console.debug(map);
@@ -57,6 +58,47 @@ export class CelesteMap {
         }
       }
     }
+
+    this.bounds = this.calculateBounds();
+    this.levels.forEach(level => {
+      level.solids?.autoTile(this, level);
+    });
+  }
+
+  getLevelAt(pos: Vector2) {
+    for (const [_, level] of this.levels) {
+      if (
+        pos.x >= level.x &&
+        pos.x <= level.x + level.width - 1 &&
+        pos.y >= level.y &&
+        pos.y <= level.y + level.height - 1
+      ) {
+        return level;
+      }
+    }
+    return null;
+  }
+
+  /**
+   *
+   * @param pos A world space tile grid position
+   */
+  getTileAt(pos: Vector2) {
+    const levelSpacePos = new Vector2(
+      pos.x * CelesteMap.tileMultiplier + this.bounds.left,
+      pos.y * CelesteMap.tileMultiplier + this.bounds.top,
+    );
+    const level = this.getLevelAt(levelSpacePos);
+
+    if (!level) {
+      return null;
+    }
+
+    const levelGridPos = new Vector2(
+      pos.x - (level.x - this.bounds.left) / CelesteMap.tileMultiplier,
+      pos.y - (level.y - this.bounds.top) / CelesteMap.tileMultiplier,
+    );
+    return level.solids?.get(levelGridPos.x, levelGridPos.y);
   }
 
   getStartLevel() {

@@ -91,9 +91,8 @@ async function showMap(mapData: AbstractMapData) {
 
   header.innerText = map.package;
 
-  const bounds = map.calculateBounds();
-  const camera = new Camera(canvasContainer, map, bounds);
-  const mapRenderer = new MapRenderer(map, bounds, camera);
+  const camera = new Camera(canvasContainer, map);
+  const mapRenderer = new MapRenderer(map, camera);
   mapRenderer.start();
 }
 

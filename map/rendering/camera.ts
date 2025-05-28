@@ -35,12 +35,28 @@ export class Camera {
     return null;
   }
 
-  constructor(element: HTMLElement, map: CelesteMap, bounds: Bounds) {
+  constructor(element: HTMLElement, map: CelesteMap) {
     this.#element = element;
-    this.mapBounds = bounds;
+    this.mapBounds = map.bounds;
 
     this.updateSize();
 
+    document.onmousedown = event => {
+      if (event.button !== 0) {
+        return;
+      }
+
+      const boundingRect = canvas.getBoundingClientRect();
+      const mousePos = new Vector2(
+        event.x - boundingRect.x,
+        event.y - boundingRect.y,
+      );
+
+      const tile = map.getTileAt(
+        this.worldSpaceToTileGrid(this.screenSpaceToWorld(mousePos)),
+      );
+      tile?.adjacents?.log();
+    };
     this.centerLevel(map.getStartLevel());
   }
 
@@ -123,6 +139,31 @@ export class Camera {
     y = Math.max(-Camera.marginSize, y);
 
     return new Vector2(x, y);
+  }
+
+  worldSpaceToTileGrid(worldPos: Vector2) {
+    const gridPos = new Vector2(
+      Math.floor(worldPos.x / CelesteMap.tileMultiplier),
+      Math.floor(worldPos.y / CelesteMap.tileMultiplier),
+    );
+
+    return gridPos;
+  }
+
+  worldSpaceToCameraGrid(worldPos: Vector2) {
+    const gridPos = this.worldSpaceToTileGrid(worldPos);
+
+    return new Vector2(
+      gridPos.x * CelesteMap.tileMultiplier * this.scale - this.position.x,
+      gridPos.y * CelesteMap.tileMultiplier * this.scale - this.position.y,
+    );
+  }
+
+  screenSpaceToWorld(screenPos: Vector2) {
+    return new Vector2(
+      (this.position.x + screenPos.x) / this.scale,
+      (this.position.y + screenPos.y) / this.scale,
+    );
   }
 
   moveTo(position: Vector2, onMove: OnMoveFunc | null = null) {

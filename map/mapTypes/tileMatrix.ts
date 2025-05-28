@@ -1,3 +1,7 @@
+import {Vector2} from '../utils/vector2.js';
+import {CelesteMap} from './celesteMap.js';
+import {Level} from './level.js';
+
 export class TileMatrix {
   #matrix: Tile[] = [];
   #width = 0;
@@ -31,30 +35,36 @@ export class TileMatrix {
         this.#matrix.push(new Tile(char.charCodeAt(0)));
       }
     }
-
-    this.#autoTile();
   }
 
-  #autoTile() {
+  autoTile(map: CelesteMap, level: Level) {
     for (let y = 0; y < this.#height; y++) {
       for (let x = 0; x < this.#width; x++) {
         const currentTile = this.get(x, y);
 
         if (currentTile?.isSolid()) {
-          currentTile.adjacents = this.#getAdjacents(x, y);
+          currentTile.adjacents = this.#getAdjacents(x, y, map, level);
         }
       }
     }
   }
 
-  #getAdjacents(x: number, y: number) {
+  #getAdjacents(x: number, y: number, map: CelesteMap, level: Level) {
     const adjacents = new Adjacents();
 
     for (let y2 = -1; y2 < 2; y2++) {
       const checkY = y + y2;
       for (let x2 = -1; x2 < 2; x2++) {
         const checkX = x + x2;
-        const tile = this.get(checkX, checkY);
+        let tile: Tile | null | undefined = this.get(checkX, checkY);
+        if (!tile) {
+          tile = map.getTileAt(
+            new Vector2(
+              (level.x - map.bounds.left) / CelesteMap.tileMultiplier + checkX,
+              (level.y - map.bounds.top) / CelesteMap.tileMultiplier + checkY,
+            ),
+          );
+        }
 
         adjacents.set(x2, y2, tile ?? new Tile('o'.charCodeAt(0)));
       }
@@ -64,7 +74,7 @@ export class TileMatrix {
   }
 
   get(x: number, y: number) {
-    if (x < 0 || x > this.#width || y < 0 || y > this.#height) {
+    if (x < 0 || x >= this.#width || y < 0 || y >= this.#height) {
       return null;
     }
 
@@ -139,5 +149,19 @@ export class Adjacents {
       }
     }
     return true;
+  }
+
+  log() {
+    let message = '';
+    for (let y = -1; y < 2; y++) {
+      let line = '';
+      for (let x = -1; x < 2; x++) {
+        const adjacent = this.get(x, y);
+
+        line += adjacent.idChar;
+      }
+      message += line + '\n';
+    }
+    console.log(message);
   }
 }
