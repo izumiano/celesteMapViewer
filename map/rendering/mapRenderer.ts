@@ -78,14 +78,21 @@ export class MapRenderer {
   }
 
   async draw(position: Vector2) {
-    this.#abortController.abort();
+    this.#abortController.abort('Rerender');
     this.#abortController = new AbortController();
 
     this.#scale = this.camera.scale;
 
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    for await (const level of this.map.levels.values()) {
+    await this.#drawRooms(position);
+
+    // this.drawDebug();
+  }
+
+  async #drawRooms(position: Vector2) {
+    const promises = [];
+    for (const level of this.map.levels.values()) {
       if (!this.levelIsInView(level)) {
         continue;
       }
@@ -101,8 +108,6 @@ export class MapRenderer {
         return;
       }
     }
-
-    // this.drawDebug();
   }
 
   drawTouchDebug() {

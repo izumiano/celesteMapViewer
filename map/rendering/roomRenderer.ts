@@ -85,14 +85,13 @@ export default class RoomRenderer {
     ctx.strokeStyle = 'rgb(200 200 200)';
     for (let y = 0; y < tiles.height; y++) {
       for (let x = 0; x < tiles.width; x++) {
-        const tileId = tiles.get(x, y);
-        // 48 is unicode for "0"
-        if (tileId.id === 48) {
+        const tile = tiles.get(x, y);
+        if (!tile?.isSolid()) {
           continue;
         }
 
-        const tileset = await Tileset.get(tileId);
-        const imageElement = await tileset.getImage(x);
+        const tileset = await Tileset.lazyGet(tile);
+        const imageElement = await tileset.getImage(tile);
 
         ctx.drawImage(
           imageElement,
