@@ -138,10 +138,8 @@ export class TilesetInfo {
     return this.tilesetInfos.get('1')!;
   }
 
-  static async populate(
-    path: string = import.meta.resolve('/assets/ForegroundTiles.xml'),
-  ) {
-    const xmlText = await (await fetch(path)).text();
+  static async populate(path: string = 'assets/ForegroundTiles.xml') {
+    const xmlText = await (await fetch(window.location.href + path)).text();
     const parser = new DOMParser();
     const xml = <XMLDocument>parser.parseFromString(xmlText, 'text/xml');
     const xmlData = xml.getElementsByTagName('Data');
