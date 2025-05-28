@@ -97,17 +97,27 @@ export class MapRenderer {
         continue;
       }
 
-      const drawLevelResult = await this.roomRenderer.drawLevel(
-        level,
-        this.bounds,
-        position,
-        this.#scale,
-        this.#abortController,
+      promises.push(
+        new Promise(async (resolve, reject) => {
+          const drawLevelResult = await this.roomRenderer.drawLevel(
+            level,
+            this.bounds,
+            position,
+            this.#scale,
+            this.#abortController,
+          );
+          if (drawLevelResult.isFailure) {
+            if (drawLevelResult.failure.message === 'Rerender') {
+              resolve(null);
+            }
+            reject(drawLevelResult.failure);
+          }
+          resolve(null);
+        }),
       );
-      if (drawLevelResult.isFailure) {
-        return;
-      }
     }
+
+    await Promise.all(promises);
   }
 
   drawTouchDebug() {
