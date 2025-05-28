@@ -38,6 +38,41 @@ export default class RoomRenderer {
     const levelX = (level.x - bounds.left) * scale - position.x;
     const levelY = (level.y - bounds.top) * scale - position.y;
 
+    const drawScaleCulledResult = await this.drawScaleCulled(
+      level,
+      levelX,
+      levelY,
+      tiles,
+      scale,
+      abortController,
+    );
+    if (drawScaleCulledResult.isFailure) {
+      return Result.failure(drawScaleCulledResult.failure);
+    }
+
+    ctx.strokeStyle = 'rgb(113,65,101)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(levelX, levelY, level.width * scale, level.height * scale);
+
+    this.drawRoomLabel(level.name, levelX, levelY, scale);
+
+    return Result.success();
+  }
+
+  async drawScaleCulled(
+    level: Level,
+    levelX: number,
+    levelY: number,
+    tiles: TileMatrix,
+    scale: number,
+    abortController: AbortController,
+  ) {
+    const levelWidth = level.width * scale;
+    const levelHeight = level.height * scale;
+
+    if (levelWidth < 5 || levelHeight < 5) {
+      return Result.success();
+    }
     const drawSolidsResult = await this.drawSolids(
       level,
       tiles,
@@ -59,12 +94,6 @@ export default class RoomRenderer {
     if (drawEntitiesResult.isFailure) {
       return Result.failure(drawEntitiesResult.failure);
     }
-
-    ctx.strokeStyle = 'rgb(113,65,101)';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(levelX, levelY, level.width * scale, level.height * scale);
-
-    this.drawRoomLabel(level.name, levelX, levelY, scale);
 
     return Result.success();
   }
