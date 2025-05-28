@@ -62,8 +62,13 @@ export class MouseHandler extends InputHandler {
     };
 
     onwheel = event => {
-      this.onInputData = [];
-      this.onInputStart(event, new Vector2(event.clientX, event.clientY));
+      for (let i = 0; i < this.onInputData.length; i++) {
+        this.onInputData[i] = new InputData(
+          new Vector2(event.x, event.y),
+          Vector2.Create(this.camera.position),
+          this.camera.scale,
+        );
+      }
     };
 
     onmousemove = event => {
