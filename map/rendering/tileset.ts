@@ -139,7 +139,9 @@ export class TilesetInfo {
   }
 
   static async populate(path: string = 'assets/ForegroundTiles.xml') {
-    const xmlText = await (await fetch(window.location.href + path)).text();
+    const xmlText = await (
+      await fetch(window.location.href + window.location.pathname + path)
+    ).text();
     const parser = new DOMParser();
     const xml = <XMLDocument>parser.parseFromString(xmlText, 'text/xml');
     const xmlData = xml.getElementsByTagName('Data');
