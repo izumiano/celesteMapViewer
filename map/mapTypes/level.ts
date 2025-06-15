@@ -47,7 +47,7 @@ export class Level {
           this.objTiles = child.innerText;
           break;
         case 'solids':
-          this.solids = new TileMatrix(child.innerText, this);
+          this.solids = TileMatrix.createFromString(child.innerText, this);
           break;
         case 'bg':
           this.bg = child.innerText;

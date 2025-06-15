@@ -1,4 +1,5 @@
 import {Entity} from './entity.js';
+import IntroCrusher from './introCrusher.js';
 import SpawnPoint from './spawnPoint.js';
 import Spinner from './spinner.js';
 
@@ -18,6 +19,9 @@ export default class EntityFactory {
       switch (entity.__name) {
         case 'spinner':
           ret.push(new Spinner(entity));
+          break;
+        case 'introCrusher':
+          ret.push(new IntroCrusher(entity));
           break;
         case 'player':
           const player = new SpawnPoint(entity);

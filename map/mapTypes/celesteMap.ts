@@ -92,7 +92,7 @@ export class CelesteMap {
     const level = this.getLevelAt(levelSpacePos);
 
     if (!level) {
-      return null;
+      return new Tile('o'.charCodeAt(0));
     }
 
     const levelGridPos = new Vector2(

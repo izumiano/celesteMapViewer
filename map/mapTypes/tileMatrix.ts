@@ -2,7 +2,7 @@ import {Vector2} from '../utils/vector2.js';
 import {CelesteMap} from './celesteMap.js';
 import {Level} from './level.js';
 
-export class TileMatrix {
+export class TileMatrix implements Iterable<Tile> {
   #matrix: Tile[] = [];
   #width = 0;
   #height = 0;
@@ -18,32 +18,50 @@ export class TileMatrix {
     return this.#height;
   }
 
-  constructor(tiles: string, level: Level) {
+  constructor(
+    matrix: Tile[],
+    matrixWidth: number,
+    matrixHeight: number,
+    actualWidth: number,
+    actualHeight: number,
+  ) {
+    this.#matrix = matrix;
+    this.#width = matrixWidth;
+    this.#height = matrixHeight;
+    this.#actualWidth = actualWidth;
+    this.#actualHeight = actualHeight;
+  }
+
+  static createFromString(tiles: string, level: Level) {
     tiles ??= '';
 
     tiles = tiles.replaceAll('\r\n', '\n');
     const tileArr = tiles.split('\n');
 
-    this.#actualWidth = level.width / CelesteMap.tileMultiplier;
-    this.#actualHeight = level.height / CelesteMap.tileMultiplier;
+    const actualWidth = level.width / CelesteMap.tileMultiplier;
+    const actualHeight = level.height / CelesteMap.tileMultiplier;
 
-    this.#height = tileArr.length;
+    const height = tileArr.length;
 
+    let width = 0;
     for (const line of tileArr) {
-      this.#width = Math.max(this.#width, line.length);
+      width = Math.max(width, line.length);
     }
 
+    const matrix = [];
     for (let line of tileArr) {
-      const extraLength = this.#width - line.length;
+      const extraLength = width - line.length;
       line += '0'.repeat(extraLength);
 
       for (const char of line) {
-        this.#matrix.push(new Tile(char.charCodeAt(0)));
+        matrix.push(new Tile(char.charCodeAt(0)));
       }
     }
+
+    return new TileMatrix(matrix, width, height, actualWidth, actualHeight);
   }
 
-  autoTile(map: CelesteMap, level: Level) {
+  autoTile(map: CelesteMap | null = null, level: Level | null = null) {
     for (let y = 0; y < this.#height; y++) {
       for (let x = 0; x < this.#width; x++) {
         const currentTile = this.get(x, y);
@@ -55,38 +73,56 @@ export class TileMatrix {
     }
   }
 
-  #getAdjacents(x: number, y: number, map: CelesteMap, level: Level) {
+  #getAdjacents(
+    x: number,
+    y: number,
+    map: CelesteMap | null = null,
+    level: Level | null = null,
+  ) {
     const adjacents = new Adjacents();
 
-    const levelX = (level.x - map.bounds.left) / CelesteMap.tileMultiplier;
-    const levelY = (level.y - map.bounds.top) / CelesteMap.tileMultiplier;
+    const levelX =
+      map && level
+        ? (level.x - map.bounds.left) / CelesteMap.tileMultiplier
+        : 0;
+    const levelY =
+      map && level ? (level.y - map.bounds.top) / CelesteMap.tileMultiplier : 0;
 
     let isSurrounded = true;
     for (let y2 = -1; y2 < 2; y2++) {
       const checkY = y + y2;
       for (let x2 = -1; x2 < 2; x2++) {
         const checkX = x + x2;
-        let tile: Tile | null | undefined = this.get(checkX, checkY);
-        if (!tile) {
-          tile = map.getTileAt(new Vector2(levelX + checkX, levelY + checkY));
-        }
+        let tile = this.get(checkX, checkY);
+        tile ??= map
+          ? map.getTileAt(new Vector2(levelX + checkX, levelY + checkY))
+          : null;
 
-        const newTile = tile ?? new Tile('o'.charCodeAt(0));
-        if (!newTile.isSolid()) {
+        tile ??= map ? new Tile('o'.charCodeAt(0)) : Tile.air();
+        if (!tile.isSolid()) {
           isSurrounded = false;
         }
-        adjacents.set(x2, y2, newTile);
+        adjacents.set(x2, y2, tile);
       }
     }
 
     if (isSurrounded) {
       const outer = [];
-      outer.push(
-        map.getTileAt(new Vector2(levelX + x - 2, levelY + y)),
-        map.getTileAt(new Vector2(levelX + x + 2, levelY + y)),
-        map.getTileAt(new Vector2(levelX + x, levelY + y - 2)),
-        map.getTileAt(new Vector2(levelX + x, levelY + y + 2)),
-      );
+      if (map) {
+        outer.push(
+          map.getTileAt(new Vector2(levelX + x - 2, levelY + y)),
+          map.getTileAt(new Vector2(levelX + x + 2, levelY + y)),
+          map.getTileAt(new Vector2(levelX + x, levelY + y - 2)),
+          map.getTileAt(new Vector2(levelX + x, levelY + y + 2)),
+        );
+      } else {
+        outer.push(
+          this.get(levelX + x - 2, levelY + y),
+          this.get(levelX + x + 2, levelY + y),
+          this.get(levelX + x, levelY + y - 2),
+          this.get(levelX + x, levelY + y + 2),
+        );
+      }
 
       adjacents.outer = outer;
     }
@@ -119,6 +155,21 @@ export class TileMatrix {
       ret.push(arr);
     }
     return ret;
+  }
+
+  [Symbol.iterator](): Iterator<Tile> {
+    let index = 0;
+    const matrix = this.#matrix;
+
+    return {
+      next: (): IteratorResult<Tile> => {
+        if (index < matrix.length) {
+          return {value: matrix[index++], done: false};
+        } else {
+          return {value: undefined, done: true};
+        }
+      },
+    };
   }
 }
 
@@ -180,7 +231,7 @@ export class Adjacents {
 
     for (let adjacentTile of this.outer) {
       if (!adjacentTile) {
-        continue;
+        return false;
       }
       const ignores = this.isIgnoreSolid(ignoreStr, adjacentTile, tile);
       if (adjacentTile.isSolid() && !ignores) {

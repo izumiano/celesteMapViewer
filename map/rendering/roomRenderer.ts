@@ -84,7 +84,7 @@ export default class RoomRenderer {
     if (drawSolidsResult.isFailure) {
       return Result.failure(drawSolidsResult.failure);
     }
-    const drawEntitiesResult = this.drawEntities(
+    const drawEntitiesResult = await this.drawEntities(
       level.entities,
       scale,
       levelX,
@@ -204,7 +204,7 @@ export default class RoomRenderer {
     return Result.success();
   }
 
-  drawEntities(
+  async drawEntities(
     entities: Entity[],
     scale: number,
     xOffset: number,
@@ -215,19 +215,7 @@ export default class RoomRenderer {
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 1;
     for (const entity of entities) {
-      if (entity instanceof Spinner) {
-        ctx.beginPath();
-        ctx.arc(
-          entity.x * scale + xOffset,
-          entity.y * scale + yOffset,
-          CelesteMap.tileMultiplier * scale,
-          0,
-          Math.PI * 2,
-          true,
-        );
-        ctx.closePath();
-        ctx.stroke();
-      }
+      await entity.draw(ctx, xOffset, yOffset, scale);
 
       if (abortController.signal.aborted) {
         return Result.failure(abortController.signal.reason);
