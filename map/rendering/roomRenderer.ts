@@ -211,8 +211,6 @@ export default class RoomRenderer {
     abortController: AbortController,
   ) {
     const ctx = this.ctx;
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 1;
     for (const entity of entities) {
       if (abortController.signal.aborted) {
         return Result.failure(abortController.signal.reason);

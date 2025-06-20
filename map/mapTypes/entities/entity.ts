@@ -63,6 +63,8 @@ export class Entity {
     abortController: AbortController,
   ) {
     console.warn(this.name, 'is not supported for drawing');
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 1;
     ctx.strokeRect(
       this.x * scale + xOffset,
       this.y * scale + yOffset,
