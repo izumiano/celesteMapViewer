@@ -61,13 +61,13 @@ export class Entity {
     yOffset: number,
     scale: number,
   ) {
+    console.warn(this.name, 'is not supported for drawing');
+    ctx.strokeRect(
+      this.x * scale + xOffset,
+      this.y * scale + yOffset,
+      (this.width ?? 1) * scale,
+      (this.height ?? 1) * scale,
+    );
     return Result.success();
-    // console.warn(this.name, 'is not supported for drawing');
-    // ctx.strokeRect(
-    //   this.x * scale + xOffset,
-    //   this.y * scale + yOffset,
-    //   (this.width ?? CelesteMap.tileMultiplier) * scale,
-    //   (this.height ?? CelesteMap.tileMultiplier) * scale,
-    // );
   }
 }

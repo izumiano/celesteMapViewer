@@ -1,4 +1,3 @@
-import {TilesetInfo} from '../rendering/tileset.js';
 import {Bounds} from '../utils/bounds.js';
 import {Vector2} from '../utils/vector2.js';
 import {Level} from './level.js';

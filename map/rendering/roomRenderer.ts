@@ -1,7 +1,6 @@
 import Result from '../../utils/result.js';
 import {CelesteMap} from '../mapTypes/celesteMap.js';
 import {Entity} from '../mapTypes/entities/entity.js';
-import Spinner from '../mapTypes/entities/spinner.js';
 import {Level} from '../mapTypes/level.js';
 import {TileMatrix} from '../mapTypes/tileMatrix.js';
 import {Bounds} from '../utils/bounds.js';
@@ -215,11 +214,10 @@ export default class RoomRenderer {
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 1;
     for (const entity of entities) {
-      await entity.draw(ctx, xOffset, yOffset, scale);
-
       if (abortController.signal.aborted) {
         return Result.failure(abortController.signal.reason);
       }
+      await entity.draw(ctx, xOffset, yOffset, scale);
     }
 
     return Result.success();
