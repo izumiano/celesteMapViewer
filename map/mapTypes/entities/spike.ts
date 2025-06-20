@@ -78,6 +78,7 @@ export default class Spike extends Entity {
     xOffset: number,
     yOffset: number,
     scale: number,
+    abortController: AbortController,
   ): Promise<Result<unknown>> {
     if (!this.tileCount) {
       return Result.success();
@@ -90,6 +91,10 @@ export default class Spike extends Entity {
     const tileSize = CelesteMap.tileMultiplier * scale;
     const tilingDirectionSizeX = this.tilingDirection.x * tileSize;
     const tilingDirectionSizeY = this.tilingDirection.y * tileSize;
+
+    if (abortController.signal.aborted) {
+      return Result.failure(abortController.signal.reason);
+    }
 
     for (let i = 0; i < this.tileCount; i++) {
       ctx.drawImage(

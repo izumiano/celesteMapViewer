@@ -217,7 +217,7 @@ export default class RoomRenderer {
       if (abortController.signal.aborted) {
         return Result.failure(abortController.signal.reason);
       }
-      await entity.draw(ctx, xOffset, yOffset, scale);
+      await entity.draw(ctx, xOffset, yOffset, scale, abortController);
     }
 
     return Result.success();

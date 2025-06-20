@@ -35,6 +35,7 @@ export default class IntroCrusher extends Entity {
     xOffset: number,
     yOffset: number,
     scale: number,
+    abortController: AbortController,
   ) {
     const canvasResult = await this.getEntityCanvas();
     if (canvasResult.isFailure) {

@@ -60,6 +60,7 @@ export class Entity {
     xOffset: number,
     yOffset: number,
     scale: number,
+    abortController: AbortController,
   ) {
     console.warn(this.name, 'is not supported for drawing');
     ctx.strokeRect(

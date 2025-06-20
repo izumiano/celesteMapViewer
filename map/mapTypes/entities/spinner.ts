@@ -8,6 +8,7 @@ export default class Spinner extends Entity {
     xOffset: number,
     yOffset: number,
     scale: number,
+    abortController: AbortController,
   ) {
     ctx.beginPath();
     ctx.arc(
