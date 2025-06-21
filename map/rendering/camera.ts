@@ -174,22 +174,12 @@ export class Camera {
   }
 
   start(onMove: OnMoveFunc) {
-    this.#element.onwheel = event => {
-      const boundingRect = this.#element.getBoundingClientRect();
-      const mousePosition = new Vector2(
-        event.clientX - boundingRect.x - Camera.borderSize,
-        event.clientY - boundingRect.y - Camera.borderSize,
-      );
-
-      const dir = Math.sign(event.deltaY);
-
-      this.setScale(this.scale * 1.1 ** -dir, mousePosition);
-    };
-
     if (typeof ontouchstart !== 'undefined') {
+      console.log('touch');
       this.#inputHandlers.push(new TouchHandler(this.#element, this, onMove));
     }
     if (typeof onmousedown !== 'undefined') {
+      console.log('mouse');
       this.#inputHandlers.push(new MouseHandler(this.#element, this, onMove));
     }
 

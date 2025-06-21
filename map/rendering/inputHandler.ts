@@ -62,6 +62,16 @@ export class MouseHandler extends InputHandler {
     };
 
     onwheel = event => {
+      const boundingRect = this.element.getBoundingClientRect();
+      const mousePosition = new Vector2(
+        event.clientX - boundingRect.x - Camera.borderSize,
+        event.clientY - boundingRect.y - Camera.borderSize,
+      );
+
+      const dir = Math.sign(event.deltaY);
+
+      this.camera.setScale(this.camera.scale * 1.1 ** -dir, mousePosition);
+
       for (let i = 0; i < this.onInputData.length; i++) {
         this.onInputData[i] = new InputData(
           new Vector2(event.x, event.y),
