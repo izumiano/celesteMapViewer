@@ -50,8 +50,6 @@ export default class Spike extends Entity {
         this.tileOffset = new Vector2(-CelesteMap.tileMultiplier + 1, 0);
         break;
     }
-
-    console.log(entity);
   }
 
   static async getImage(path: string) {
