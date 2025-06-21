@@ -123,20 +123,10 @@ export class Camera {
 
   #getClampedPosition(x: number, y: number) {
     const boundingRect = this.#element.getBoundingClientRect();
-    x = Math.min(
-      -this.mapBounds.width * this.scale -
-        boundingRect.width +
-        Camera.sizeOffset,
-      x,
-    );
-    x = Math.max(-Camera.marginSize, x);
-    y = Math.min(
-      this.mapBounds.height * this.scale -
-        boundingRect.height +
-        Camera.sizeOffset,
-      y,
-    );
-    y = Math.max(-Camera.marginSize, y);
+    x = Math.max(-boundingRect.width - Camera.sizeOffset, x);
+    x = Math.min(-this.mapBounds.width * this.scale + Camera.sizeOffset, x);
+    y = Math.max(-boundingRect.height - Camera.sizeOffset, y);
+    y = Math.min(this.mapBounds.height * this.scale + Camera.sizeOffset, y);
 
     return new Vector2(x, y);
   }
