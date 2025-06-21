@@ -62,7 +62,7 @@ export class Entity {
     scale: number,
     abortController: AbortController,
   ) {
-    console.warn(this.name, 'is not supported for drawing');
+    // console.warn(this.name, 'is not supported for drawing');
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 1;
     ctx.strokeRect(
