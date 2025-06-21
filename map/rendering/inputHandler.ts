@@ -248,7 +248,12 @@ class TouchPadDetector {
     this.eventCount = 0;
   }
 
-  onWheel() {
+  onWheel(event: MouseEvent) {
+    if (event.ctrlKey) {
+      this.isTrackPad = true;
+      return;
+    }
+
     if (this.eventCount === 0) {
       this.eventCountStart = performance.now();
     }
@@ -270,6 +275,11 @@ class TouchPadDetector {
   }
 
   start() {
-    onwheel = _ => this.onWheel();
+    onwheel = event => this.onWheel(event);
+    onmousedown = event => {
+      if (event.button == 1 || event.buttons == 4) {
+        this.isTrackPad = false;
+      }
+    };
   }
 }
