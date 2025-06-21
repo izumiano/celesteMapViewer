@@ -49,6 +49,9 @@ export class InputHandler {
 
 export class MouseHandler extends InputHandler {
   start() {
+    const touchPadDetector = new TouchPadDetector();
+    touchPadDetector.start();
+
     this.element.onmousedown = event => {
       if (event.button == 1 || event.buttons == 4) {
         this.onInputStart(event, new Vector2(event.clientX, event.clientY));
@@ -72,9 +75,24 @@ export class MouseHandler extends InputHandler {
           event.clientY - boundingRect.y - Camera.borderSize,
         );
 
-        const dir = Math.sign(event.deltaY);
+        if (event.ctrlKey) {
+          let s = Math.exp(-event.deltaY / 100);
 
-        this.camera.setScale(this.camera.scale * 1.1 ** -dir, mousePosition);
+          this.camera.setScale(this.camera.scale * s, mousePosition);
+        } else {
+          if (touchPadDetector.isTrackPad === true) {
+            const newPos = Vector2.Create(this.camera.position);
+            newPos.x += event.deltaX;
+            newPos.y += event.deltaY;
+            this.camera.moveTo(newPos, this.onMove);
+          } else {
+            const dir = Math.sign(event.deltaY);
+            this.camera.setScale(
+              this.camera.scale * 1.1 ** -dir,
+              mousePosition,
+            );
+          }
+        }
 
         for (let i = 0; i < this.onInputData.length; i++) {
           this.onInputData[i] = new InputData(
@@ -214,5 +232,44 @@ class InputData {
     this.cameraPosition = cameraPosition;
     this.scale = scale;
     this.currentPosition = inputPosition;
+  }
+}
+
+class TouchPadDetector {
+  oldTime = 0;
+  newTime = 0;
+  isTrackPad: boolean | undefined;
+  eventCount = 0;
+  eventCountStart = performance.now();
+
+  resetDetection() {
+    this.oldTime = 0;
+    this.newTime = 0;
+    this.eventCount = 0;
+  }
+
+  onWheel() {
+    if (this.eventCount === 0) {
+      this.eventCountStart = performance.now();
+    }
+
+    this.eventCount++;
+
+    if (
+      typeof this.isTrackPad === 'undefined' &&
+      performance.now() - this.eventCountStart > 100
+    ) {
+      if (this.eventCount > 5) {
+        console.log(this.eventCount);
+        this.isTrackPad = true;
+      } else {
+        this.isTrackPad = false;
+      }
+      window.setTimeout(() => this.resetDetection(), 2000);
+    }
+  }
+
+  start() {
+    onwheel = _ => this.onWheel();
   }
 }

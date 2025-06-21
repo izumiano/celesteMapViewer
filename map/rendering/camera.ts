@@ -3,7 +3,6 @@ import {Level} from '../mapTypes/level.js';
 import {Bounds} from '../utils/bounds.js';
 import {Vector2} from '../utils/vector2.js';
 import {InputHandler, MouseHandler, TouchHandler} from './inputHandler.js';
-import {Tileset} from './tileset.js';
 
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 
@@ -175,11 +174,9 @@ export class Camera {
 
   start(onMove: OnMoveFunc) {
     if (typeof ontouchstart !== 'undefined') {
-      console.log('touch');
       this.#inputHandlers.push(new TouchHandler(this.#element, this, onMove));
     }
     if (typeof onmousedown !== 'undefined') {
-      console.log('mouse');
       this.#inputHandlers.push(new MouseHandler(this.#element, this, onMove));
     }
 
