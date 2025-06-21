@@ -4,3 +4,4 @@ node_modules
 !.prettierrc.js
 testData
 .vscode/settingsPath.txt
+.ds_store
