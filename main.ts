@@ -82,6 +82,7 @@ async function readLocalMod(files: FileList | null) {
   createModList(modResult.success);
 }
 
+let mapRenderer: MapRenderer | undefined;
 async function showMap(mapData: AbstractMapData) {
   const mapBuffer = await mapData.readMap();
 
@@ -92,7 +93,8 @@ async function showMap(mapData: AbstractMapData) {
   header.innerText = map.package;
 
   const camera = new Camera(canvasContainer, map);
-  const mapRenderer = new MapRenderer(map, camera);
+  mapRenderer?.dispose();
+  mapRenderer = new MapRenderer(map, camera);
   mapRenderer.start();
 }
 

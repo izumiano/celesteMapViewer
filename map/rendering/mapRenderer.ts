@@ -51,6 +51,10 @@ export class MapRenderer {
     this.draw(this.camera.position);
   }
 
+  dispose() {
+    this.camera.onResize = null;
+  }
+
   levelIsInView(level: Level) {
     const left =
       (level.x - this.bounds.left) * this.#scale - this.camera.position.x;
