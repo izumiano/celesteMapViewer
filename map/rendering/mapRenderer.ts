@@ -52,7 +52,7 @@ export class MapRenderer {
   }
 
   dispose() {
-    this.camera.onResize = null;
+    this.camera.dispose();
   }
 
   levelIsInView(level: Level) {

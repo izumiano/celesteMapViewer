@@ -184,4 +184,12 @@ export class Camera {
       handler.start();
     });
   }
+
+  dispose() {
+    this.onResize = null;
+
+    this.#inputHandlers.forEach(handler => {
+      handler.dispose();
+    });
+  }
 }
