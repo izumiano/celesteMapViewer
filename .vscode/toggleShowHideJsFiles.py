@@ -18,25 +18,50 @@ except FileNotFoundError:
 try:
 	with open(path, 'r') as file:
 		settingsStr = file.read()
-
-	settingsObj = json.loads(settingsStr)
-	if "files.exclude" not in settingsObj:
-		settingsObj["files.exclude"] = {}
 	
+	settingsObj = json.loads(settingsStr)
+	fileExtension = path.split(".")[-1]
+	if fileExtension == "json":
+		if "files.exclude" not in settingsObj:
+			settingsObj["files.exclude"] = {}
 
-	if "**/*.js" in settingsObj["files.exclude"]:
-		isExcluding = settingsObj["files.exclude"]["**/*.js"]
-		if isExcluding:
-			print("showing .js files")
+		if "**/*.js" in settingsObj["files.exclude"]:
+			isExcluding = settingsObj["files.exclude"]["**/*.js"]
+			if isExcluding:
+				print("showing .js files")
+			else:
+				print("hiding .js files")
+			settingsObj["files.exclude"]["**/*.js"] = not isExcluding
 		else:
 			print("hiding .js files")
-		settingsObj["files.exclude"]["**/*.js"] = not isExcluding
+			settingsObj["files.exclude"]["**/*.js"] = True
+	elif fileExtension == "code-workspace":
+		if "settings" not in settingsObj:
+			settingsObj["settings"] = {}
+
+		settingsProperty = settingsObj["settings"]
+		if "files.exclude" not in settingsObj["settings"]:
+			settingsObj["files.exclude"] = {}
+
+		if "**/*.js" in settingsProperty["files.exclude"]:
+			isExcluding = settingsProperty["files.exclude"]["**/*.js"]
+			if isExcluding:
+				print("showing .js files")
+			else:
+				print("hiding .js files")
+			settingsProperty["files.exclude"]["**/*.js"] = not isExcluding
+		else:
+			print("hiding .js files")
+			settingsProperty["files.exclude"]["**/*.js"] = True
+
+		settingsObj["settings"] = settingsProperty
 	else:
-		print("hiding .js files")
-		settingsObj["files.exclude"]["**/*.js"] = True
+		raise ValueError(f"Unsupported file extension: '.{fileExtension}'")
 
 	with open(path, 'w') as file:
 		file.write(json.dumps(settingsObj, indent=2))
 		
-except FileNotFoundError as err:
-	print(err)
+except FileNotFoundError and ValueError as err:
+	RED = '\033[31m'
+	RESET = '\033[0m'
+	print(f"{RED}{err}{RESET}")
