@@ -65,7 +65,7 @@ input::placeholder {
 	grid-row-start: 1;
 	font-size: 0.9rem;
 	min-width: 25dvw;
-	height: 2.5dvh;
+	min-height: 2.5dvh;
 	background-color: var(--primaryColor);
 	border-color: gray;
 	transition: border-color 0.5s;
