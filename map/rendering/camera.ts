@@ -64,6 +64,7 @@ export class Camera {
     const boundingRect = this.#element.getBoundingClientRect();
     canvas.width = boundingRect.width;
     canvas.height = boundingRect.height;
+    canvas.getContext('2d')!.imageSmoothingEnabled = false;
 
     this.size = new Vector2(
       boundingRect.width - Camera.borderSize * 2,
