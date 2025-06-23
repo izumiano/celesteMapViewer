@@ -38,7 +38,7 @@ export default class Spinner extends Entity {
         resolve(null);
       };
       image.onerror = () => {
-        reject('Failed loading image');
+        reject(`Failed loading image at ${imageDir + path}`);
       };
       image.src = imageDir + path;
     });
@@ -47,7 +47,7 @@ export default class Spinner extends Entity {
   }
 
   static async getImage(color: SpinnerColor, textureIndex: number) {
-    const path = `crystal/fg_${textureMappings.get(color)}0${textureIndex}}.png`;
+    const path = `crystal/fg_${textureMappings.get(color)}0${textureIndex}.png`;
     if (this.images.has(path)) {
       return this.images.get(path)!;
     }
