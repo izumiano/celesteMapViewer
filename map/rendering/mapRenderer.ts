@@ -34,6 +34,8 @@ export class MapRenderer {
     this.ctx = ctx;
 
     this.#scale = camera.scale;
+
+    window.setTimeout(() => this.draw(this.camera.position), 1000);
   }
 
   start() {

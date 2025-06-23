@@ -12,7 +12,7 @@ export default class RoomRenderer {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
 
-  renderedRooms: Map<string, HTMLCanvasElement> = new Map();
+  renderedRooms: Map<string, HTMLCanvasElement | 'pending'> = new Map();
 
   constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     this.ctx = ctx;
@@ -143,19 +143,20 @@ export default class RoomRenderer {
     level: Level,
     tiles: TileMatrix,
     abortController: AbortController,
-  ): Promise<Result<HTMLCanvasElement>> {
+  ): Promise<Result<HTMLCanvasElement | 'pending'>> {
     if (this.renderedRooms.has(level.name)) {
       return Result.success(this.renderedRooms.get(level.name));
     }
 
-    const canvasResult = await this.createRoomCanvas(tiles, abortController);
-    if (canvasResult.isFailure) {
-      return Result.failure(canvasResult.failure);
-    }
-    const canvas = canvasResult.success;
-
-    this.renderedRooms.set(level.name, canvas);
-    return Result.success(canvas);
+    this.createRoomCanvas(tiles, abortController).then(result => {
+      if (result.isFailure) {
+        this.renderedRooms.delete(level.name);
+      }
+      const canvas = result.success;
+      this.renderedRooms.set(level.name, canvas);
+    });
+    this.renderedRooms.set(level.name, 'pending');
+    return Result.success('pending');
   }
 
   async drawSolids(
@@ -175,6 +176,9 @@ export default class RoomRenderer {
       return Result.failure(canvasResult.failure);
     }
     const canvas = canvasResult.success;
+    if (canvas === 'pending') {
+      return Result.success();
+    }
 
     const ctx = this.ctx;
 
