@@ -1,5 +1,7 @@
+import Actor from './entities/actor.js';
 import {Entity} from './entities/entity.js';
 import EntityFactory from './entities/entityFactory.js';
+import SolidsContainer from './entities/solidsContainer.js';
 import SpawnPoint from './entities/spawnPoint.js';
 import {TileMatrix} from './tileMatrix.js';
 
@@ -10,17 +12,19 @@ export class Level {
   width: number;
   height: number;
 
-  objTiles: string | undefined = undefined;
-  solids: TileMatrix | undefined = undefined;
-  bg: string | undefined = undefined;
-  bgTiles: string | undefined = undefined;
-  fgTiles: string | undefined = undefined;
-  bgDecals: {[key: string]: any} | undefined = undefined;
-  fgDecals: {[key: string]: any} | undefined = undefined;
-  triggers: {[key: string]: any} | undefined = undefined;
+  objTiles: string | undefined;
+  solids: SolidsContainer | undefined;
+  bg: string | undefined;
+  bgTiles: string | undefined;
+  fgTiles: string | undefined;
+  bgDecals: {[key: string]: any} | undefined;
+  fgDecals: {[key: string]: any} | undefined;
+  triggers: {[key: string]: any} | undefined;
   entities: Entity[] = [];
 
   spawnPoints: SpawnPoint[] = [];
+
+  actors: Actor[] = [];
 
   static toLevelSet(levels: {[key: string]: any}): Map<string, Level> {
     const ret: Map<string, Level> = new Map();
@@ -47,7 +51,10 @@ export class Level {
           this.objTiles = child.innerText;
           break;
         case 'solids':
-          this.solids = TileMatrix.createFromString(child.innerText, this);
+          this.solids = new SolidsContainer(
+            this,
+            TileMatrix.createFromString(child.innerText, this),
+          );
           break;
         case 'bg':
           this.bg = child.innerText;
@@ -77,5 +84,20 @@ export class Level {
           break;
       }
     }
+
+    const actors: Actor[] = [];
+    for (const entity of this.entities) {
+      actors.push(entity);
+    }
+    this.solids && actors.push(this.solids);
+
+    this.actors = actors.sort((actorA, actorB) => {
+      if (actorA.depth < actorB.depth) {
+        return 1;
+      } else if (actorA.depth > actorB.depth) {
+        return -1;
+      }
+      return 0;
+    });
   }
 }

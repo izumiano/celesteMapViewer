@@ -26,12 +26,6 @@ export default class RoomRenderer {
     scale: number,
     abortController: AbortController,
   ) {
-    const tiles = level.solids;
-    if (!tiles) {
-      console.error('Tiles was undefined');
-      return Result.success();
-    }
-
     const ctx = this.ctx;
 
     const levelX = (level.x - bounds.left) * scale - position.x;
@@ -41,7 +35,6 @@ export default class RoomRenderer {
       level,
       levelX,
       levelY,
-      tiles,
       scale,
       abortController,
     );
@@ -62,7 +55,6 @@ export default class RoomRenderer {
     level: Level,
     levelX: number,
     levelY: number,
-    tiles: TileMatrix,
     scale: number,
     abortController: AbortController,
   ) {
@@ -72,29 +64,25 @@ export default class RoomRenderer {
     if (levelWidth < 5 || levelHeight < 5) {
       return Result.success();
     }
-    const drawSolidsResult = await this.drawSolids(
-      level,
-      tiles,
-      scale,
-      levelX,
-      levelY,
-      abortController,
-    );
-    if (drawSolidsResult.isFailure) {
-      return Result.failure(drawSolidsResult.failure);
-    }
-    const drawEntitiesResult = await this.drawEntities(
-      level.entities,
-      scale,
-      levelX,
-      levelY,
-      abortController,
-    );
-    if (drawEntitiesResult.isFailure) {
-      return Result.failure(drawEntitiesResult.failure);
-    }
 
-    return Result.success();
+    const ctx = this.ctx;
+    ctx.fillStyle = 'rgb(41, 20, 36)';
+    ctx.fillRect(levelX, levelY, level.width * scale, level.height * scale);
+
+    const promises = [];
+    for (const actor of level.actors) {
+      promises.push(actor.draw(ctx, levelX, levelY, scale, abortController));
+      if (abortController.signal.aborted) {
+        return Result.failure(abortController.signal.reason);
+      }
+    }
+    try {
+      await Promise.all(promises);
+      return Result.success();
+    } catch (ex) {
+      const err = ex as Error;
+      return Result.failure(err);
+    }
   }
 
   async createRoomCanvas(

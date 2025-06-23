@@ -1,7 +1,7 @@
 import Result from '../../../utils/result.js';
-import {CelesteMap} from '../celesteMap.js';
+import Actor from './actor.js';
 
-export class Entity {
+export class Entity extends Actor {
   name: string;
   x: number;
   y: number;
@@ -10,7 +10,9 @@ export class Entity {
 
   canvas: HTMLCanvasElement | null = null;
 
-  constructor(entity: any) {
+  constructor(entity: any, depth: number = 0) {
+    super(depth);
+
     this.name = entity.__name;
     this.x = entity.x;
     this.y = entity.y;

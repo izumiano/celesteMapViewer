@@ -69,7 +69,7 @@ export default class Spike extends Entity {
   step = 16;
 
   constructor(entity: any, direction: Direction) {
-    super(entity);
+    super(entity, -1);
 
     this.id = entity.id;
     this.type = entity.type;

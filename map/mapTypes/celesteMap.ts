@@ -61,7 +61,7 @@ export class CelesteMap {
 
     this.bounds = this.calculateBounds();
     this.levels.forEach(level => {
-      level.solids?.autoTile(this, level);
+      level.solids?.tiles.autoTile(this, level);
     });
   }
 
@@ -98,7 +98,9 @@ export class CelesteMap {
       pos.x - (level.x - this.bounds.left) / CelesteMap.tileMultiplier,
       pos.y - (level.y - this.bounds.top) / CelesteMap.tileMultiplier,
     );
-    return level.solids?.get(levelGridPos.x, levelGridPos.y) ?? Tile.air();
+    return (
+      level.solids?.tiles.get(levelGridPos.x, levelGridPos.y) ?? Tile.air()
+    );
   }
 
   /**

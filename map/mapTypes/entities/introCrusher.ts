@@ -11,7 +11,7 @@ export default class IntroCrusher extends Entity {
 
   constructor(entity: any) {
     console.log(entity);
-    super(entity);
+    super(entity, 0);
 
     const matrix = [];
     const tileWidth = this.width / CelesteMap.tileMultiplier;
