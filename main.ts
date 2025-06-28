@@ -86,9 +86,9 @@ let mapRenderer: MapRenderer | undefined;
 async function showMap(mapData: AbstractMapData) {
   const mapBuffer = await mapData.readMap();
 
+  await TilesetInfo.populate();
   const map = await new MapBinReader().decodeData(mapBuffer);
   console.log(map);
-  await TilesetInfo.populate();
 
   header.innerText = map.package;
 

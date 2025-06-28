@@ -3,31 +3,39 @@ import {Tileset} from '../../rendering/tileset.js';
 import {CelesteMap} from '../celesteMap.js';
 import {Tile, TileMatrix} from '../tileMatrix.js';
 import {Entity} from './entity.js';
+import SolidsContainer from './solidsContainer.js';
 
-export default class IntroCrusher extends Entity {
-  tiles: TileMatrix;
+export default class IntroCrusher extends SolidsContainer {
   declare width: number;
   declare height: number;
 
+  x: number;
+  y: number;
+
   constructor(entity: any) {
-    console.log(entity);
-    super(entity, 0);
+    const width = entity.width;
+    const height = entity.height;
 
     const matrix = [];
-    const tileWidth = this.width / CelesteMap.tileMultiplier;
-    const tileHeight = this.height / CelesteMap.tileMultiplier;
+    const tileWidth = width / CelesteMap.tileMultiplier;
+    const tileHeight = height / CelesteMap.tileMultiplier;
     const length = tileWidth * tileHeight;
     for (let i = 0; i < length; i++) {
       matrix.push(new Tile((entity.tiletype ?? '3').charCodeAt(0)));
     }
-    this.tiles = new TileMatrix(
+    const tiles = new TileMatrix(
       matrix,
       tileWidth,
       tileHeight,
       tileWidth,
       tileHeight,
     );
-    this.tiles.autoTile();
+    tiles.autoTile();
+
+    super(entity, tiles, 0);
+
+    this.x = entity.x;
+    this.y = entity.y;
   }
 
   async draw(
@@ -37,16 +45,12 @@ export default class IntroCrusher extends Entity {
     scale: number,
     abortController: AbortController,
   ) {
-    const canvasResult = await this.getEntityCanvas();
-    if (canvasResult.isFailure) {
-      return Result.failure(canvasResult.failure);
-    }
-    ctx.drawImage(
-      canvasResult.success,
-      this.x * scale + xOffset,
-      this.y * scale + yOffset,
-      this.width * scale,
-      this.height * scale,
+    super.draw(
+      ctx,
+      xOffset + this.x * scale,
+      yOffset + this.y * scale,
+      scale,
+      abortController,
     );
 
     return Result.success();

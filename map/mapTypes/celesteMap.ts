@@ -60,9 +60,17 @@ export class CelesteMap {
     }
 
     this.bounds = this.calculateBounds();
-    this.levels.forEach(level => {
+  }
+
+  async init() {
+    const promises = [];
+    for (const [_, level] of this.levels) {
       level.solids?.tiles.autoTile(this, level);
-    });
+      for (const actor of level.actors) {
+        promises.push(actor.loadSprites());
+      }
+    }
+    await Promise.all(promises);
   }
 
   getLevelAt(pos: Vector2) {

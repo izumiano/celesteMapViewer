@@ -2,13 +2,13 @@ import {getRandomInt} from '../../utils/math.js';
 import {CelesteMap} from '../mapTypes/celesteMap.js';
 import {Adjacents, Tile} from '../mapTypes/tileMatrix.js';
 import {Vector2} from '../utils/vector2.js';
+import Sprite from './sprite.js';
 
 export class Tileset {
   static tilesets: Map<number, Tileset> = new Map();
 
   image: HTMLImageElement;
   tilesetInfo: TilesetInfo | null;
-  tiles: Map<number, ImageBitmap> = new Map();
 
   constructor(image: HTMLImageElement, tilesetInfo: TilesetInfo | null) {
     this.image = image;
@@ -33,25 +33,35 @@ export class Tileset {
     return new Tileset(image, tilesetInfo);
   }
 
-  async getImage(tile: Tile) {
-    if (this.tiles.has(tile.id)) {
-      return this.tiles.get(tile.id)!;
+  async addImage(tile: Tile) {
+    const tilesetMatch = this.tilesetInfo?.getMatch(tile);
+    if (!tilesetMatch) {
+      return {};
     }
 
-    let id = 0;
-
-    const tileCoordinate =
-      this.tilesetInfo?.getMatch(tile)?.chooseTile() ?? new Vector2(0, 0);
+    const tilesetCoordinates = tilesetMatch.chooseTile() ?? new Vector2(0, 0);
+    const path = `tileId:${tile.id}|${tilesetMatch.mask}|${tilesetCoordinates.x},${tilesetCoordinates.y}`;
+    if (Sprite.has(path)) {
+      return {
+        tilesetMatch: tilesetMatch,
+        tilesetCoordinates: tilesetCoordinates,
+      };
+    }
 
     const image = await window.createImageBitmap(
       this.image,
-      tileCoordinate.x * CelesteMap.tileMultiplier,
-      tileCoordinate.y * CelesteMap.tileMultiplier,
+      tilesetCoordinates.x * CelesteMap.tileMultiplier,
+      tilesetCoordinates.y * CelesteMap.tileMultiplier,
       CelesteMap.tileMultiplier,
       CelesteMap.tileMultiplier,
     );
-    this.tiles.set(id, image);
-    return image;
+    Sprite.add({path: path, image: image});
+    return {tilesetMatch: tilesetMatch, tilesetCoordinates: tilesetCoordinates};
+  }
+
+  getImage(tile: Tile) {
+    const path = `tileId:${tile.id}|${tile.tilesetMatch!.mask}|${tile.tilesetCoordinates!.x},${tile.tilesetCoordinates!.y}`;
+    return Sprite.getImage(path);
   }
 
   static async lazyGet(tile: Tile) {
@@ -160,9 +170,13 @@ export class TilesetInfo {
   }
 }
 
-class TileInfo {
+export class TileInfo {
   #mask: string;
   #tiles: Vector2[];
+
+  get mask() {
+    return this.#mask;
+  }
 
   chooseTile() {
     return this.#tiles[getRandomInt(0, this.#tiles.length - 1)];

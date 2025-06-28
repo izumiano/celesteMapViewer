@@ -1,11 +1,11 @@
 import Result from '../../../utils/result.js';
 
 export default class Actor {
-	depth: number;
+  depth: number;
 
-	constructor(depth: number) {
-		this.depth = depth;
-	}
+  constructor(depth: number) {
+    this.depth = depth;
+  }
 
   async draw(
     ctx: CanvasRenderingContext2D,
@@ -16,4 +16,6 @@ export default class Actor {
   ) {
     return Result.success();
   }
+
+  async loadSprites() {}
 }

@@ -20,7 +20,7 @@ export class Level {
   bgDecals: {[key: string]: any} | undefined;
   fgDecals: {[key: string]: any} | undefined;
   triggers: {[key: string]: any} | undefined;
-  entities: Entity[] = [];
+  entities: Actor[] = [];
 
   spawnPoints: SpawnPoint[] = [];
 

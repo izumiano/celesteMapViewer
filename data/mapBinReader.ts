@@ -7,17 +7,17 @@ export class MapBinReader {
   async decodeData(data: Uint8Array<ArrayBufferLike>) {
     this.#bytes = data;
 
-    return this.#decode();
+    return await this.#decode();
   }
 
   async decodeFile(file: RequestInfo) {
     const buffer = await (await fetch(file)).arrayBuffer();
     this.#bytes = new Uint8Array(buffer);
 
-    return this.#decode();
+    return await this.#decode();
   }
 
-  #decode() {
+  async #decode() {
     console.log(this.#bytes);
     const header = this.readString();
     if (header !== 'CELESTE MAP') {
@@ -36,7 +36,9 @@ export class MapBinReader {
     const ret: {[key: string]: any} = this.decodeElement(lookup);
     ret._package = modPackage;
 
-    return new CelesteMap(ret);
+    const map = new CelesteMap(ret);
+    await map.init();
+    return map;
   }
 
   decodeValue(lookup: string[], typ: number) {

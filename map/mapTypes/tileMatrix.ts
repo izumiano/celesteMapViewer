@@ -1,3 +1,4 @@
+import {TileInfo} from '../rendering/tileset.js';
 import {Vector2} from '../utils/vector2.js';
 import {CelesteMap} from './celesteMap.js';
 import {Level} from './level.js';
@@ -176,6 +177,9 @@ export class TileMatrix implements Iterable<Tile> {
 export class Tile {
   id: number;
   adjacents: Adjacents | null = null;
+
+  tilesetMatch: TileInfo | undefined;
+  tilesetCoordinates: Vector2 | undefined;
 
   get idChar() {
     return String.fromCodePoint(this.id);

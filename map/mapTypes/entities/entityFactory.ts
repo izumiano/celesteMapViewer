@@ -1,15 +1,16 @@
+import Actor from './actor.js';
 import {Entity} from './entity.js';
 import IntroCrusher from './introCrusher.js';
 import SpawnPoint from './spawnPoint.js';
-import Spike, { Direction } from './spike.js';
+import Spike, {Direction} from './spike.js';
 import Spinner from './spinner.js';
 
 export default class EntityFactory {
-  entities: Entity[];
+  entities: Actor[];
   spawnPoints: SpawnPoint[] = [];
 
   constructor(entities: any[] | undefined) {
-    let ret: Entity[] = [];
+    let ret: Actor[] = [];
 
     if (!entities) {
       this.entities = ret;
@@ -24,16 +25,16 @@ export default class EntityFactory {
         case 'introCrusher':
           ret.push(new IntroCrusher(entity));
           break;
-        case "spikesUp":
+        case 'spikesUp':
           ret.push(new Spike(entity, Direction.Up));
           break;
-        case "spikesRight":
+        case 'spikesRight':
           ret.push(new Spike(entity, Direction.Right));
           break;
-        case "spikesDown":
+        case 'spikesDown':
           ret.push(new Spike(entity, Direction.Down));
           break;
-        case "spikesLeft":
+        case 'spikesLeft':
           ret.push(new Spike(entity, Direction.Left));
           break;
         case 'player':

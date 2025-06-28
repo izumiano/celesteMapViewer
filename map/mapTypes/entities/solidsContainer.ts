@@ -1,5 +1,5 @@
 import Result from '../../../utils/result.js';
-import {Tileset} from '../../rendering/tileset.js';
+import {TileInfo, Tileset} from '../../rendering/tileset.js';
 import {CelesteMap} from '../celesteMap.js';
 import {Level} from '../level.js';
 import {TileMatrix} from '../tileMatrix.js';
@@ -9,12 +9,28 @@ export default class SolidsContainer extends Actor {
   level: Level;
   tiles: TileMatrix;
 
-  renderedRooms: Map<string, HTMLCanvasElement | 'pending'> = new Map();
+  renderedTexture: HTMLCanvasElement | 'pending' | undefined;
 
-  constructor(level: Level, tiles: TileMatrix) {
-    super(-10000);
+  constructor(level: Level, tiles: TileMatrix, depth: number = -10000) {
+    super(depth);
     this.level = level;
     this.tiles = tiles;
+  }
+
+  async loadSprites() {
+    for (let y = 0; y < this.tiles.height; y++) {
+      for (let x = 0; x < this.tiles.width; x++) {
+        const tile = this.tiles.get(x, y);
+        if (!tile?.isSolid()) {
+          continue;
+        }
+
+        const tileset = await Tileset.lazyGet(tile);
+        const {tilesetMatch, tilesetCoordinates} = await tileset.addImage(tile);
+        tile.tilesetMatch = tilesetMatch;
+        tile.tilesetCoordinates = tilesetCoordinates;
+      }
+    }
   }
 
   async createRoomCanvas(
@@ -40,7 +56,7 @@ export default class SolidsContainer extends Actor {
         }
 
         const tileset = await Tileset.lazyGet(tile);
-        const imageElement = await tileset.getImage(tile);
+        const imageElement = tileset.getImage(tile);
 
         ctx.drawImage(
           imageElement,
@@ -59,24 +75,23 @@ export default class SolidsContainer extends Actor {
     return Result.success(canvas);
   }
 
-  async getRoomCanvas(
-    level: Level,
+  async getSolidsCanvas(
     tiles: TileMatrix,
     abortController: AbortController,
   ): Promise<Result<HTMLCanvasElement | 'pending'>> {
-    if (this.renderedRooms.has(level.name)) {
-      return Result.success(this.renderedRooms.get(level.name));
+    if (this.renderedTexture) {
+      return Result.success(this.renderedTexture);
     }
 
     this.createRoomCanvas(tiles, abortController).then(result => {
       if (result.isFailure) {
-        this.renderedRooms.delete(level.name);
+        this.renderedTexture = undefined;
         return;
       }
       const canvas = result.success;
-      this.renderedRooms.set(level.name, canvas);
+      this.renderedTexture = canvas;
     });
-    this.renderedRooms.set(level.name, 'pending');
+    this.renderedTexture = 'pending';
     return Result.success('pending');
   }
 
@@ -87,8 +102,7 @@ export default class SolidsContainer extends Actor {
     scale: number,
     abortController: AbortController,
   ) {
-    const canvasResult = await this.getRoomCanvas(
-      this.level,
+    const canvasResult = await this.getSolidsCanvas(
       this.tiles,
       abortController,
     );

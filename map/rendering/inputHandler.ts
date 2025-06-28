@@ -78,7 +78,7 @@ export class MouseHandler extends InputHandler {
 
       this.camera.setScale(this.camera.scale * s, mousePosition);
     } else {
-      if (this.touchPadDetector.isTrackPad === true) {
+      if (this.touchPadDetector.isTouchPad === true) {
         const newPos = Vector2.Create(this.camera.position);
         newPos.x += event.deltaX;
         newPos.y += event.deltaY;
@@ -260,7 +260,7 @@ class InputData {
 class TouchPadDetector {
   oldTime = 0;
   newTime = 0;
-  isTrackPad: boolean | undefined;
+  isTouchPad: boolean | undefined;
   eventCount = 0;
   eventCountStart = performance.now();
 
@@ -271,11 +271,6 @@ class TouchPadDetector {
   }
 
   onWheel(event: MouseEvent) {
-    if (event.ctrlKey) {
-      this.isTrackPad = true;
-      return;
-    }
-
     if (this.eventCount === 0) {
       this.eventCountStart = performance.now();
     }
@@ -283,13 +278,13 @@ class TouchPadDetector {
     this.eventCount++;
 
     if (
-      typeof this.isTrackPad === 'undefined' &&
+      typeof this.isTouchPad === 'undefined' &&
       performance.now() - this.eventCountStart > 100
     ) {
-      if (this.eventCount > 5) {
-        this.isTrackPad = true;
+      if (this.eventCount > 7) {
+        this.isTouchPad = true;
       } else {
-        this.isTrackPad = false;
+        this.isTouchPad = false;
       }
       window.setTimeout(() => this.resetDetection(), 2000);
     }
@@ -297,7 +292,7 @@ class TouchPadDetector {
 
   onMouseDown(event: MouseEvent) {
     if (event.button == 1 || event.buttons == 4) {
-      this.isTrackPad = false;
+      this.isTouchPad = false;
     }
   }
 

@@ -1,4 +1,5 @@
 import Result from '../../../utils/result.js';
+import Sprite from '../../rendering/sprite.js';
 import {Vector2} from '../../utils/vector2.js';
 import {CelesteMap} from '../celesteMap.js';
 import {Entity} from './entity.js';
@@ -55,9 +56,6 @@ const tentacleRotations = new Map([
 // #endregion
 
 export default class Spike extends Entity {
-  static imageDir = window.location + 'assets/spikes/';
-  static images: Map<string, HTMLImageElement> = new Map();
-
   id: number;
   direction: Direction;
   type: 'default' | 'outline' | 'cliffside' | 'reflection' | 'tentacles';
@@ -67,6 +65,15 @@ export default class Spike extends Entity {
   offset: Vector2;
 
   step = 16;
+
+  get path() {
+    return (
+      'spikes/' +
+      (this.type !== 'tentacles'
+        ? `${this.type}_${Direction[this.direction].toLowerCase()}00`
+        : `${this.type}00`)
+    );
+  }
 
   constructor(entity: any, direction: Direction) {
     super(entity, -1);
@@ -80,46 +87,11 @@ export default class Spike extends Entity {
 
     this.justification = this.getJustification(this.type, direction);
     this.offset = this.getOffset(this.type, direction);
-  }
 
-  static async #getImage(type: string, direction: Direction) {
-    const path =
-      type !== 'tentacles'
-        ? `${type}_${Direction[direction].toLowerCase()}00`
-        : `${type}00`;
-    if (this.images.has(path)) {
-      return this.images.get(path)!;
-    }
-
-    const image = new Image();
-    await new Promise((resolve, reject) => {
-      image.onload = () => {
-        resolve(null);
-      };
-      image.onerror = () => {
-        reject('Failed loading image');
-      };
-      image.src = this.imageDir + path + '.png';
+    Sprite.add({
+      path: this.path,
+      defaultPath: `spikes/default_${Direction[this.direction].toLowerCase()}00`,
     });
-    this.images.set(path, image);
-    return image;
-  }
-
-  static async getImage(type: string, direction: Direction) {
-    const path = `${type}_${Direction[direction].toLowerCase()}00`;
-    if (this.images.has(path)) {
-      return this.images.get(path)!;
-    }
-
-    let image = new Image();
-    try {
-      image = await this.#getImage(type, direction);
-    } catch (ex) {
-      console.warn(ex);
-      image = await this.#getImage('default', direction);
-    }
-    this.images.set(path, image);
-    return image;
   }
 
   getJustification(type: string, direction: Direction) {
@@ -143,7 +115,7 @@ export default class Spike extends Entity {
     scale: number,
     abortController: AbortController,
   ): Promise<Result<unknown>> {
-    const image = await Spike.getImage(this.type, this.direction);
+    const image = Sprite.getImage(this.path);
     const tilingDirection = tilingDirections.get(this.direction)!;
 
     const imageSize = new Vector2(image.width * scale, image.height * scale);
