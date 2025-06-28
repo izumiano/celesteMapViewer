@@ -7,8 +7,8 @@ import {ModReader} from './data/modReader.js';
 import Result from './utils/result.js';
 import responseProgress, {OnProgress} from './utils/responseProgress.js';
 import {toArrayBuffer} from './utils/arrayBuffer.js';
-import {Tileset, TilesetInfo} from './map/rendering/tileset.js';
-import {Tile} from './map/mapTypes/tileMatrix.js';
+import {TilesetInfo} from './map/rendering/tileset.js';
+import {mapLoadingProgress} from './utils/progressTracker.js';
 
 const canvasContainer = document.getElementById('canvasContainer')!;
 const header = document.getElementById('header')!;
@@ -88,6 +88,7 @@ async function showMap(mapData: AbstractMapData) {
 
   await TilesetInfo.populate();
   const map = await new MapBinReader().decodeData(mapBuffer);
+  mapLoadingProgress.reset();
   console.log(map);
 
   header.innerText = map.package;

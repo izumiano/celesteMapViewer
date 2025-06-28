@@ -1,12 +1,14 @@
 import {CelesteMap} from '../map/mapTypes/celesteMap.js';
+import {mapLoadingProgress} from '../utils/progressTracker.js';
 
 export class MapBinReader {
   #bytes: Uint8Array<ArrayBufferLike> = new Uint8Array(0);
   #index = 0;
 
   async decodeData(data: Uint8Array<ArrayBufferLike>) {
-    this.#bytes = data;
+    mapLoadingProgress.set(0.1, 'decoding map binary');
 
+    this.#bytes = data;
     return await this.#decode();
   }
 

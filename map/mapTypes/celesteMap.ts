@@ -1,3 +1,4 @@
+import {mapLoadingProgress} from '../../utils/progressTracker.js';
 import {Bounds} from '../utils/bounds.js';
 import {Vector2} from '../utils/vector2.js';
 import {Level} from './level.js';
@@ -63,14 +64,28 @@ export class CelesteMap {
   }
 
   async init() {
-    const promises = [];
+    const baseProgress = 0.2;
+    mapLoadingProgress.set(baseProgress, 'loading sprites');
+
+    let levelIndex = 1;
     for (const [_, level] of this.levels) {
       level.solids?.tiles.autoTile(this, level);
+
+      let actorIndex = 1;
       for (const actor of level.actors) {
-        promises.push(actor.loadSprites());
+        const actorProgress = actorIndex / level.actors.length;
+        mapLoadingProgress.set(
+          baseProgress +
+            ((1 - baseProgress) * (actorProgress * levelIndex)) /
+              this.levels.size,
+          `loading sprites for room [${levelIndex} / ${this.levels.size}]`,
+        );
+        actorIndex++;
+
+        await actor.loadSprites();
       }
+      levelIndex++;
     }
-    await Promise.all(promises);
   }
 
   getLevelAt(pos: Vector2) {

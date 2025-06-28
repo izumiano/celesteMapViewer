@@ -1,4 +1,5 @@
 import {getRandomInt} from '../../utils/math.js';
+import {mapLoadingProgress} from '../../utils/progressTracker.js';
 import {CelesteMap} from '../mapTypes/celesteMap.js';
 import {Adjacents, Tile} from '../mapTypes/tileMatrix.js';
 import {Vector2} from '../utils/vector2.js';
@@ -149,6 +150,8 @@ export class TilesetInfo {
   }
 
   static async populate(path: string = 'assets/ForegroundTiles.xml') {
+    mapLoadingProgress.set(0, 'populating tilesets');
+
     const xmlText = await (await fetch(window.location.href + path)).text();
     const parser = new DOMParser();
     const xml = <XMLDocument>parser.parseFromString(xmlText, 'text/xml');

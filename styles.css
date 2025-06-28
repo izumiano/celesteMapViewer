@@ -1,7 +1,9 @@
 :root {
 	--margin: 0.5rem;
 	--backgroundColor: rgb(12, 3, 10);
-	--primaryColor: rgb(170, 144, 166)
+	--primaryColor: rgb(170, 144, 166);
+
+	font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
 body {
@@ -30,6 +32,10 @@ input::placeholder {
 .flexRow {
 	display: flex;
 	flex-direction: row;
+}
+
+.hidden {
+	display: none;
 }
 
 #topSection {
@@ -155,6 +161,10 @@ input::placeholder {
 }
 
 #canvasContainer {
+	display: grid;
+	justify-items: center;
+	align-items: center;
+
 	box-sizing: border-box;
 
 	border: 5px black solid;
@@ -168,6 +178,71 @@ input::placeholder {
 	height: 100%;
 
 	overflow: hidden;
+}
+
+#canvasContainer > * {
+	grid-column-start: 1;
+	grid-row-start: 1;
+}
+
+@keyframes appear {
+	0% {
+		scale: 0;
+	}
+
+	100% {
+		scale: 1;
+	}
+}
+
+.appear {
+	animation: 1s cubic-bezier(0.64, 0.57, 0.67, 1.53) appear forwards;
+}
+
+.disappear {
+	animation: 1s cubic-bezier(0.64, 0.57, 0.67, 1.53) appear reverse;
+}
+
+#canvasLoadingIndicator {
+	--progress: 0;
+
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 65%;
+	height: fit-content;
+	background-color: transparent;
+	z-index: 1;
+
+	background-color: rgb(from var(--primaryColor) r g b / 0.5);
+
+	scale: 0;
+
+	border: 2px white solid;
+	border-radius: 2rem 4rem 2rem 3rem;
+	padding: 0 0 1.2rem 1rem;
+}
+
+#canvasLoadingIndicator * {
+	color: white;
+	font-size: 2rem;
+	text-shadow: 2px 2px 2px black;
+}
+
+.bigProgressBar {
+	width: 90%;
+	height: 2dvh;
+	border: 4px var(--primaryColor) solid;
+	border-radius: 1rem;
+
+	background-color: black;
+}
+
+.progressStatus {
+	width: calc(100% * var(--progress));
+	height: 100%;
+	background-color: white;
+	border-radius: 1rem;
 }
 
 #test {
