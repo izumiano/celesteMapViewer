@@ -24,7 +24,7 @@ export default class Sprite {
 
   static async add(spriteData: SpriteData) {
     if (this.#images.has(spriteData.path)) {
-      console.error(spriteData.path, 'already exists');
+      // console.error(spriteData.path, 'already exists');
       return this.#images.get(spriteData.path)!;
     }
 
