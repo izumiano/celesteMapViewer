@@ -67,33 +67,42 @@ export class MapBinReader {
   }
 
   decodeElement(lookup: string[]) {
-    const name = this.look(lookup);
-    const element: {[key: string]: any} = {__name: name};
-    const attributeCount = this.readByte();
+    const ret: {[key: string]: any}[] = [];
 
-    for (let i = 0; i < attributeCount; i++) {
-      const key = this.look(lookup);
-      const typ = this.readByte();
+    const stack: {[key: string]: any}[][] = [];
+    stack.push(ret);
 
-      const value = this.decodeValue(lookup, typ);
+    while (stack.length > 0) {
+      const name = this.look(lookup);
+      const parent = stack.pop()!;
+      const element: {[key: string]: any} = {};
+      parent.push(element);
+      element.__name = name;
+      const attributeCount = this.readByte();
 
-      if (key) {
-        element[key] = value;
+      for (let i = 0; i < attributeCount; i++) {
+        const key = this.look(lookup);
+        const typ = this.readByte();
+
+        const value = this.decodeValue(lookup, typ);
+
+        if (key) {
+          element[key] = value;
+        }
+      }
+
+      const elementCount = this.readShort();
+
+      if (elementCount > 0) {
+        element.__children = [];
+
+        for (let i = 0; i < elementCount; i++) {
+          stack.push(element.__children);
+        }
       }
     }
 
-    const elementCount = this.readShort();
-
-    if (elementCount > 0) {
-      element.__children = [];
-
-      for (let i = 0; i < elementCount; i++) {
-        element.__children.push(this.decodeElement(lookup));
-      }
-    }
-
-    // console.debug(element);
-    return element;
+    return ret[0];
   }
 
   look(lookup: string[]) {
@@ -153,7 +162,17 @@ export class MapBinReader {
   }
 
   bytesToString(bytes: Uint8Array): string {
-    return String.fromCharCode(...bytes);
+    return this.#chunkedStringFromCharCode(bytes);
+  }
+
+  #chunkedStringFromCharCode(codes: Uint8Array): string {
+    const chunkSize = 5000;
+    let result = '';
+    for (let i = 0; i < codes.length; i += chunkSize) {
+      const chunk = codes.slice(i, i + chunkSize);
+      result += String.fromCharCode(...chunk);
+    }
+    return result;
   }
 
   readFloat() {
