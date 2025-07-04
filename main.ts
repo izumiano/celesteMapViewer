@@ -131,11 +131,14 @@ async function readModFromUrl(
 }
 
 async function createModList(modData: ModData) {
+  console.debug(modData);
+
   mapList.innerHTML = originalMapListContent;
 
   for (const map of modData.maps) {
     const option = document.createElement('option');
-    option.innerText = map.name;
+    option.innerText =
+      modData.dialog['English']?.lines[map.dialogKey] ?? map.name;
     option.value = map.name;
     mapList.appendChild(option);
   }

@@ -40,7 +40,7 @@ export class ModReader {
         continue;
       }
 
-      mod.maps = mod.maps.concat(modDataResult.success.maps);
+      mod.concat(modDataResult.success);
     }
     if (errors.length > 0) {
       return Result.failure(

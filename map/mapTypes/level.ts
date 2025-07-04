@@ -1,5 +1,5 @@
+import {dialogKeyify} from '../../utils/utils.js';
 import Actor from './entities/actor.js';
-import {Entity} from './entities/entity.js';
 import EntityFactory from './entities/entityFactory.js';
 import SolidsContainer from './entities/solidsContainer.js';
 import SpawnPoint from './entities/spawnPoint.js';
@@ -38,7 +38,7 @@ export class Level {
   }
 
   constructor(level: {[key: string]: any}) {
-    this.name = level.name;
+    this.name = dialogKeyify(level.name);
     this.x = level.x;
     this.y = level.y;
     this.width = level.width;

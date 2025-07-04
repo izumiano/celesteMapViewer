@@ -20,7 +20,6 @@ export class MapBinReader {
   }
 
   async #decode() {
-    console.log(this.#bytes);
     const header = this.readString();
     if (header !== 'CELESTE MAP') {
       throw new Error('Invalid Celeste Map File');

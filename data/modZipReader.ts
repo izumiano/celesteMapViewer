@@ -15,11 +15,10 @@ export class ModZipReader {
     const zipReader = new ZipReader(zipFileReader);
 
     const entries = await zipReader.getEntries();
-    const mapZipData = new ModZipData(entries);
+    const modZipData = new ModZipData();
+    await modZipData.init(entries);
 
-    await zipReader.close();
-
-    return mapZipData;
+    return modZipData;
   }
 
   static isZip(buffer: ArrayBuffer) {

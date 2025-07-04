@@ -1,3 +1,5 @@
+import {dialogKeyify} from '../../utils/utils.js';
+
 export class MapMeta {
   modeMeta: ModeMeta | null = null;
 
@@ -28,6 +30,8 @@ class ModeMeta {
       return;
     }
 
-    this.startLevel = meta.StartLevel;
+    this.startLevel = meta.StartLevel
+      ? dialogKeyify(meta.StartLevel)
+      : undefined;
   }
 }

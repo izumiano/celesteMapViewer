@@ -1,22 +1,51 @@
+import {dialogKeyify} from '../utils/utils.js';
+import Dialog from './dialog.js';
 import {AbstractMapReader, MapReader} from './mapReader.js';
 
 export default class ModData {
   maps: AbstractMapData[];
+  dialog: {[key: string]: Dialog};
 
-  constructor(maps: AbstractMapData[] = []) {
+  constructor(
+    maps: AbstractMapData[] = [],
+    dialog: {[key: string]: Dialog} = {},
+  ) {
     this.maps = maps;
+    this.dialog = dialog;
+  }
+
+  concat(mod: ModData) {
+    this.maps = this.maps.concat(mod.maps);
+    for (const dialogLang in mod.dialog) {
+      const dialog = mod.dialog[dialogLang];
+      if (this.dialog[dialogLang]) {
+        this.dialog[dialogLang].concat(dialog);
+      } else {
+        this.dialog[dialogLang] = dialog;
+      }
+    }
   }
 }
 
 export class AbstractMapData {
   name: string;
   path: string;
+  dialogKey: string;
 
   reader: AbstractMapReader;
 
   constructor(path: string | null, reader: AbstractMapReader) {
     this.path = path ?? 'Map';
+    if (this.path.startsWith('Maps/')) {
+      this.path = this.path.replace('Maps/', '');
+    }
     this.name = this.#getName(this.path);
+    let dialogKey = this.path;
+    if (dialogKey.endsWith('.bin')) {
+      dialogKey = dialogKey.slice(0, dialogKey.length - 4);
+    }
+    this.dialogKey = dialogKeyify(dialogKey);
+
     this.reader = reader;
   }
 
