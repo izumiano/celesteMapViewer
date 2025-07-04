@@ -18,7 +18,6 @@ class ProgressTracker {
       if (message) {
         this.#message = message;
       }
-      console.info(this.#message, this.#progress);
       this.#indicatorElement.style.setProperty(
         '--progress',
         `${this.#progress}`,

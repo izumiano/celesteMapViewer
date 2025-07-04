@@ -5,7 +5,7 @@ export default class Sprite {
 
   static async #loadImage(path: string) {
     if (this.#images.has(path)) {
-      console.error(path, 'already exists');
+      // console.error(path, 'already exists');
       return this.#images.get(path)!;
     }
 
