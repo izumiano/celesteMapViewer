@@ -23,15 +23,21 @@ export default class Sprite {
   }
 
   static async add(spriteData: SpriteData) {
-    if (this.#images.has(spriteData.path)) {
+    let path: string | undefined = spriteData.path;
+    path ??= spriteData.defaultPath;
+    if (!path) {
+      throw new Error('path undefined');
+    }
+
+    if (this.#images.has(path)) {
       // console.error(spriteData.path, 'already exists');
-      return this.#images.get(spriteData.path)!;
+      return this.#images.get(path)!;
     }
 
     let image: ImageBitmap | HTMLImageElement | undefined = spriteData.image;
     if (!image) {
       try {
-        image = await this.#loadImage(spriteData.path);
+        image = await this.#loadImage(path);
       } catch (ex) {
         console.warn(ex);
         if (spriteData.defaultPath) {
@@ -40,7 +46,7 @@ export default class Sprite {
       }
     }
     if (image) {
-      this.#images.set(spriteData.path, image);
+      this.#images.set(path, image);
     }
     return image;
   }
