@@ -1,3 +1,4 @@
+import {onResize as onElementResize} from '../../utils/utils.js';
 import {CelesteMap} from '../mapTypes/celesteMap.js';
 import {Level} from '../mapTypes/level.js';
 import {Bounds} from '../utils/bounds.js';
@@ -6,6 +7,7 @@ import {Camera} from './camera.js';
 import RoomRenderer from './roomRenderer.js';
 
 const canvas = <HTMLCanvasElement>document.getElementById('canvas');
+const canvasContainer = document.getElementById('canvasContainer')!;
 
 export class MapRenderer {
   #scale: number;
@@ -45,10 +47,11 @@ export class MapRenderer {
     this.camera.onResize = async () => {
       await this.draw(this.camera.position);
     };
-    onresize = async _ => {
+    onElementResize(canvasContainer, async () => {
+      console.log('resize');
       this.camera.updateSize();
       await this.draw(this.camera.position);
-    };
+    });
 
     this.draw(this.camera.position);
   }

@@ -1,251 +1,321 @@
 :root {
-	--margin: 0.5rem;
-	--backgroundColor: rgb(12, 3, 10);
-	--primaryColor: rgb(170, 144, 166);
+  --margin: 0.5rem;
+  --backgroundColor: rgb(12, 3, 10);
+  --primaryColor: rgb(170, 144, 166);
 
-	font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 }
 
 body {
-	margin: var(--margin);
-	width: calc(100dvw - var(--margin) * 2);
-	height: calc(100dvh - var(--margin) * 2);
+  margin: var(--margin);
+  width: calc(100dvw - var(--margin) * 2);
+  height: calc(100dvh - var(--margin) * 2);
 
-	background-color: var(--backgroundColor);
-	touch-action: none;
+  background-color: var(--backgroundColor);
+  touch-action: none;
 }
 
 input::placeholder {
-	color: rgb(79, 81, 85);
-	background-color: var(--primaryColor);
+  color: rgb(79, 81, 85);
+  background-color: var(--primaryColor);
 }
 
 #body {
-	height: 100%;
+  height: 100%;
+  transition: 0.5s;
+}
+
+.sidebar {
+  font-size: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  background-color: #111;
+  overflow-x: hidden;
+  transition: 0.5s;
+}
+
+.sidebar > * {
+  white-space: nowrap;
+  flex: 1 1 auto;
+  margin: 2.5dvw;
+}
+
+#roomList {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  overflow-y: scroll;
+  height: 100%;
+  margin-top: 0;
+  border: rgb(113, 65, 101) solid 2px;
+  border-radius: 1rem;
+}
+
+#roomList > * {
+  font-size: 1rem;
+  background-color: #111;
+  color: white;
+  border: none;
+  display: block;
+  margin: 0;
+  line-height: 0;
+  padding: 2rem;
+  width: 100%;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+#roomList > *:hover {
+  filter: brightness(1.5);
+}
+
+#roomList > *:active {
+  filter: brightness(2);
+}
+
+.textButton {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  width: fit-content;
+  cursor: pointer;
+  font-size: 2rem;
+  color: white;
+  background-color: transparent;
+  border: none;
 }
 
 .flexCol {
-	display: flex;
-	flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .flexRow {
-	display: flex;
-	flex-direction: row;
+  display: flex;
+  flex-direction: row;
 }
 
 .hidden {
-	display: none;
+  display: none;
 }
 
 #topSection {
-	margin: 5px;
+  margin: 5px;
 }
 
 #topSection > * {
-	margin: 2px;
+  margin: 2px;
 }
 
 #gbLinkInputContainer {
-	display: inline-grid;
+  display: inline-grid;
 }
 
 #gbLinkInputProgress {
-	--height: 4px;
-	grid-column-start: 1;
-	grid-row-start: 1;
-	align-self: end;
-	width: 0;
-	height: var(--height);
-	background-color: rgb(47, 105, 192);
-	border-radius: var(--height);
+  --height: 4px;
+  grid-column-start: 1;
+  grid-row-start: 1;
+  align-self: end;
+  width: 0;
+  height: var(--height);
+  background-color: rgb(47, 105, 192);
+  border-radius: var(--height);
 }
 
 .progressBar {
-	--progress: 0;
-	width: calc(100% * var(--progress)) !important;
+  --progress: 0;
+  width: calc(100% * var(--progress)) !important;
 }
 
 #gbLinkInput {
-	grid-column-start: 1;
-	grid-row-start: 1;
-	font-size: 0.9rem;
-	min-width: 25dvw;
-	min-height: 2.5dvh;
-	background-color: var(--primaryColor);
-	border-color: gray;
-	transition: border-color 0.5s;
+  grid-column-start: 1;
+  grid-row-start: 1;
+  font-size: 0.9rem;
+  min-width: 25dvw;
+  min-height: 2.5dvh;
+  background-color: var(--primaryColor);
+  border-color: gray;
+  transition: border-color 0.5s;
 }
 
 #gbLinkInput:invalid {
-	border-color: red;
+  border-color: red;
 
-	animation: pop 0.3s forwards;
+  animation: pop 0.3s forwards;
 }
 
 .pop {
-	animation: pop 0.3s forwards;
+  animation: pop 0.3s forwards;
 }
 
 @keyframes pop {
-	50% {
-		scale: 1.1;
-	}
+  50% {
+    scale: 1.1;
+  }
 
-	100% {
-		scale: 1;
-	}
+  100% {
+    scale: 1;
+  }
 }
 
 .customFileUpload {
-	font-size: 1rem;
-	/* color: white; */
-	transition: color 0.5s, background-color 0.5s;
-	display: flex;
-	align-items: center;
-	align-self: center;
-	padding: 0 0.4rem 0 0.3rem;
+  font-size: 1rem;
+  /* color: white; */
+  transition:
+    color 0.5s,
+    background-color 0.5s;
+  display: flex;
+  align-items: center;
+  align-self: center;
+  padding: 0 0.4rem 0 0.3rem;
 }
 
 .customFileUpload * {
-	height: fit-content;
-	color: white;
-	margin: 2px;
+  height: fit-content;
+  color: white;
+  margin: 2px;
 }
 
 .fileUploadButton {
-	background-color: white;
-	color: black;
-	border-radius: 1rem;
-	padding: 0.1rem 0.5rem 0.1rem 0.5rem;
-	font-size: 0.8rem;
-	border: 0.2rem groove;
-	border-color: black;
-	transition: border-color 0.6s;
+  background-color: white;
+  color: black;
+  border-radius: 1rem;
+  padding: 0.1rem 0.5rem 0.1rem 0.5rem;
+  font-size: 0.8rem;
+  border: 0.2rem groove;
+  border-color: black;
+  transition: border-color 0.6s;
 }
 
 /*if pc*/
 @media (pointer: fine) {
-	.fileUploadButton:hover {
-		filter: brightness(85%);
-	}
+  .fileUploadButton:hover {
+    filter: brightness(85%);
+  }
 
-	.fileUploadButton:active {
-		filter: brightness(60%);
-	}
+  .fileUploadButton:active {
+    filter: brightness(60%);
+  }
 }
 
-.customFileUpload input[type="file"] {
-	display: none;
+.customFileUpload input[type='file'] {
+  display: none;
 }
 
-.customFileUpload:has(>#modUpload:invalid) {
-	/* color: white; */
-	animation: pop 0.3s forwards;
+.customFileUpload:has(> #modUpload:invalid) {
+  /* color: white; */
+  animation: pop 0.3s forwards;
 }
 
-.customFileUpload:has(>#modUpload:invalid) .fileUploadButton {
-	border-color: red;
+.customFileUpload:has(> #modUpload:invalid) .fileUploadButton {
+  border-color: red;
 }
 
 #modUpload {
-	color: white;
+  color: white;
 }
 
 #mapList {
-	min-width: 20dvw;
-	color: black;
-	width: fit-content;
-	font-size: 1rem;
-	display: block;
+  min-width: 20dvw;
+  color: black;
+  width: fit-content;
+  font-size: 1rem;
+  display: block;
 }
 
 #canvasContainer {
-	display: grid;
-	justify-items: center;
-	align-items: center;
+  display: grid;
+  justify-items: center;
+  align-items: center;
 
-	box-sizing: border-box;
+  box-sizing: border-box;
 
-	border: 5px black solid;
-	border-radius: 1.5rem;
+  border: 5px black solid;
+  border-radius: 1.5rem;
 
-	flex: 1 1 auto;
+  flex: 1 1 auto;
 
-	padding: 0;
-	margin: 0;
-	width: 100%;
-	height: 100%;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
 
-	overflow: hidden;
+  overflow: hidden;
 }
 
 #canvasContainer > * {
-	grid-column-start: 1;
-	grid-row-start: 1;
+  grid-column-start: 1;
+  grid-row-start: 1;
 }
 
 @keyframes appear {
-	0% {
-		scale: 0;
-	}
+  0% {
+    scale: 0;
+  }
 
-	100% {
-		scale: 1;
-	}
+  100% {
+    scale: 1;
+  }
 }
 
 .appear {
-	animation: 1s cubic-bezier(0.64, 0.57, 0.67, 1.53) appear forwards;
+  animation: 1s cubic-bezier(0.64, 0.57, 0.67, 1.53) appear forwards;
 }
 
 .disappear {
-	animation: 1s cubic-bezier(0.64, 0.57, 0.67, 1.53) appear reverse;
+  animation: 1s cubic-bezier(0.64, 0.57, 0.67, 1.53) appear reverse;
 }
 
 #canvasLoadingIndicator {
-	--progress: 0;
+  --progress: 0;
 
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	width: 65%;
-	height: fit-content;
-	background-color: transparent;
-	z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 65%;
+  height: fit-content;
+  background-color: transparent;
+  z-index: 1;
 
-	background-color: rgb(from var(--primaryColor) r g b / 0.5);
+  background-color: rgb(from var(--primaryColor) r g b / 0.5);
 
-	scale: 0;
+  scale: 0;
 
-	border: 2px white solid;
-	border-radius: 2rem 4rem 2rem 3rem;
-	padding: 0 0 1.2rem 1rem;
+  border: 2px white solid;
+  border-radius: 2rem 4rem 2rem 3rem;
+  padding: 0 0 1.2rem 1rem;
 }
 
 #canvasLoadingIndicator * {
-	color: white;
-	font-size: 2rem;
-	text-shadow: 2px 2px 2px black;
+  color: white;
+  font-size: 2rem;
+  text-shadow: 2px 2px 2px black;
 }
 
 .bigProgressBar {
-	width: 90%;
-	height: 2dvh;
-	border: 4px var(--primaryColor) solid;
-	border-radius: 1rem;
+  width: 90%;
+  height: 2dvh;
+  border: 4px var(--primaryColor) solid;
+  border-radius: 1rem;
 
-	background-color: black;
+  background-color: black;
 }
 
 .progressStatus {
-	width: calc(100% * var(--progress));
-	height: 100%;
-	background-color: white;
-	border-radius: 1rem;
+  width: calc(100% * var(--progress));
+  height: 100%;
+  background-color: white;
+  border-radius: 1rem;
 }
 
 #test {
-	flex: 1 1 auto;
-	text-align: center;
+  flex: 1 1 auto;
+  text-align: center;
 }

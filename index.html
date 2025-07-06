@@ -1,44 +1,51 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Map Viewer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-<head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>Map Viewer</title>
-	<link rel="stylesheet" href="styles.css" />
-</head>
+  <body>
+    <div id="sidebar" class="sidebar">
+      <button id="closeSidebarButton" class="textButton"><b>&times;</b></button>
+      <div id="roomList"></div>
+    </div>
 
-<body>
-	<div id="body" class="flexCol">
-		<div id="topSection">
-			<div class="flexRow">
-				<div id="gbLinkInputContainer">
-					<input type="text" id="gbLinkInput" placeholder="GameBanana Link">
-					<div id="gbLinkInputProgress" class="progressBar"></div>
-				</div>
-				<label class="customFileUpload">
-					<input type="file" id="modUpload" multiple />
-					<div onclick="" class="fileUploadButton">Browse...</div>
-					<div id="modUploadFileName"></div>
-				</label>
-			</div>
-			<select name="mapList" id="mapList">
-				<option hidden disabled selected value id="mapListPlaceholder"> -- select a map -- </option>
-			</select>
-		</div>
-		<header id="header"></header>
-		<div id="canvasContainer">
-			<canvas id="canvas"></canvas>
-			<div id="canvasLoadingIndicator">
-				<p id="canvasLoadingMessage">Hello</p>
-				<div class="bigProgressBar">
-					<div class="progressStatus"></div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div id="body" class="flexCol">
+      <div id="topSection">
+        <button id="openSidebarButton" class="textButton">&#9776;</button>
+        <div class="flexRow">
+          <div id="gbLinkInputContainer">
+            <input type="text" id="gbLinkInput" placeholder="GameBanana Link" />
+            <div id="gbLinkInputProgress" class="progressBar"></div>
+          </div>
+          <label class="customFileUpload">
+            <input type="file" id="modUpload" multiple />
+            <div onclick="" class="fileUploadButton">Browse...</div>
+            <div id="modUploadFileName"></div>
+          </label>
+        </div>
+        <select name="mapList" id="mapList">
+          <option hidden disabled selected value id="mapListPlaceholder">
+            -- select a map --
+          </option>
+        </select>
+      </div>
+      <header id="header"></header>
+      <div id="canvasContainer">
+        <canvas id="canvas"></canvas>
+        <div id="canvasLoadingIndicator">
+          <p id="canvasLoadingMessage">Hello</p>
+          <div class="bigProgressBar">
+            <div class="progressStatus"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-	<script src="main.js" type="module"></script>
-</body>
-
+    <script src="main.js" type="module"></script>
+    <script src="map/ui/main.js" type="module"></script>
+  </body>
 </html>

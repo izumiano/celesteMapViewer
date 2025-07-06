@@ -25,3 +25,11 @@ export function dialogKeyify(key: string) {
     .replaceAll('+', '_')
     .replaceAll(' ', '_');
 }
+
+export function onResize(
+  element: HTMLElement,
+  callback: () => undefined | Promise<void>,
+) {
+  const resizeObserver = new ResizeObserver(async () => await callback());
+  resizeObserver.observe(element);
+}

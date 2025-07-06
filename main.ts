@@ -9,6 +9,7 @@ import responseProgress, {OnProgress} from './utils/responseProgress.js';
 import {toArrayBuffer} from './utils/arrayBuffer.js';
 import {TilesetInfo} from './map/rendering/tileset.js';
 import {mapLoadingProgress} from './utils/progressTracker.js';
+import Sidebar from './map/ui/main.js';
 
 const canvasContainer = document.getElementById('canvasContainer')!;
 const header = document.getElementById('header')!;
@@ -94,6 +95,9 @@ async function showMap(mapData: AbstractMapData) {
   header.innerText = map.package;
 
   const camera = new Camera(canvasContainer, map);
+  Sidebar.setRooms(map, level => {
+    camera.centerLevel(level);
+  });
   mapRenderer?.dispose();
   mapRenderer = new MapRenderer(map, camera);
   mapRenderer.start();
