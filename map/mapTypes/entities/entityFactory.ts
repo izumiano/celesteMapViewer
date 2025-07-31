@@ -1,4 +1,5 @@
 import Actor from './actor.js';
+import Refill from './refill.js';
 import {Entity} from './entity.js';
 import IntroCrusher from './introCrusher.js';
 import SpawnPoint from './spawnPoint.js';
@@ -42,7 +43,9 @@ export default class EntityFactory {
           this.spawnPoints.push(player);
           ret.push(player);
           break;
-
+        case 'refill':
+          ret.push(new Refill(entity));
+          break;
         default:
           ret.push(new Entity(entity));
           break;
