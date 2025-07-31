@@ -47,6 +47,7 @@ export default class EntityFactory {
           ret.push(new Refill(entity));
           break;
         default:
+          console.warn(`Missing type for entity ${entity.__name}`);
           ret.push(new Entity(entity));
           break;
       }
