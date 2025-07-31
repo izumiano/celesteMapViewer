@@ -22,7 +22,11 @@ export default class Sprite {
     return image;
   }
 
-  static async add(spriteData: SpriteData) {
+  static async add(spriteData: {
+    path: string;
+    defaultPath?: string | undefined;
+    image?: ImageBitmap | undefined;
+  }) {
     let path: string | undefined = spriteData.path;
     path ??= spriteData.defaultPath;
     if (!path) {
@@ -58,10 +62,4 @@ export default class Sprite {
   static has(path: string) {
     return this.#images.has(path);
   }
-}
-
-interface SpriteData {
-  path: string;
-  defaultPath?: string | undefined;
-  image?: ImageBitmap | undefined;
 }
