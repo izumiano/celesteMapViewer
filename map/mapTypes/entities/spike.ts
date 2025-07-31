@@ -76,7 +76,7 @@ export default class Spike extends Entity {
   }
 
   constructor(entity: any, direction: Direction) {
-    super(entity, -1);
+    super(entity, {depth: -1, noPath: true});
 
     this.id = entity.id;
     this.type = entity.type;

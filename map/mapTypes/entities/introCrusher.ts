@@ -55,27 +55,4 @@ export default class IntroCrusher extends SolidsContainer {
 
     return Result.success();
   }
-
-  async lazyDraw(ctx: CanvasRenderingContext2D) {
-    for (let y = 0; y < this.tiles.height; y++) {
-      for (let x = 0; x < this.tiles.width; x++) {
-        const tile = this.tiles.get(x, y);
-        if (!tile) {
-          continue;
-        }
-
-        const tileset = await Tileset.lazyGet(tile);
-        const imageElement = await tileset.getImage(tile);
-
-        ctx.drawImage(
-          imageElement,
-          x * CelesteMap.tileMultiplier,
-          y * CelesteMap.tileMultiplier,
-          CelesteMap.tileMultiplier,
-          CelesteMap.tileMultiplier,
-        );
-      }
-    }
-    return Result.success();
-  }
 }

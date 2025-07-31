@@ -1,4 +1,6 @@
 import Result from '../../../utils/result.js';
+import Sprite from '../../rendering/sprite.js';
+import {Vector2} from '../../utils/vector2.js';
 import Actor from './actor.js';
 
 export class Entity extends Actor {
@@ -10,51 +12,34 @@ export class Entity extends Actor {
 
   canvas: HTMLCanvasElement | null = null;
 
-  constructor(entity: any, depth: number = 0) {
-    super(depth);
+  // constructor(entity: any, depth: number = 0) {
+  constructor(
+    entity: any,
+    data: {depth?: number} & (
+      | {noPath: true}
+      | {noPath?: false; path: string; defaultPath?: string}
+    ) = {depth: 0, noPath: true},
+  ) {
+    if (!data.depth) {
+      data['depth'] = 0;
+    }
+    super(data.depth);
 
     this.name = entity.__name;
     this.x = entity.x;
     this.y = entity.y;
     this.width = entity.width;
     this.height = entity.height;
+
+    if (!data.noPath) {
+      Sprite.add({
+        path: data.path,
+      });
+    }
   }
 
-  async lazyDraw(ctx: CanvasRenderingContext2D) {
-    return Result.failure(new Error('not implemented'));
-  }
-
-  async createEntityCanvas(): Promise<Result<HTMLCanvasElement>> {
-    const canvas = document.createElement('canvas');
-    canvas.width = this.width ?? 0;
-    canvas.height = this.height ?? 0;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      console.error('ctx was undefined');
-      return Result.failure(new Error('ctx was undefined'));
-    }
-    ctx.imageSmoothingEnabled = false;
-
-    const lazyResult = await this.lazyDraw(ctx);
-    if (lazyResult.isFailure) {
-      return Result.failure(lazyResult.failure);
-    }
-    return Result.success(canvas);
-  }
-
-  async getEntityCanvas(): Promise<Result<HTMLCanvasElement>> {
-    if (this.canvas) {
-      return Result.success(this.canvas);
-    }
-
-    const canvasResult = await this.createEntityCanvas();
-    if (canvasResult.isFailure) {
-      return Result.failure(canvasResult.failure);
-    }
-    const canvas = canvasResult.success;
-
-    this.canvas = canvas;
-    return Result.success(canvas);
+  get path(): string | undefined {
+    return;
   }
 
   async draw(
@@ -64,6 +49,23 @@ export class Entity extends Actor {
     scale: number,
     abortController: AbortController,
   ) {
+    const path = this.path;
+    if (path) {
+      const image = Sprite.getImage(path);
+
+      const imageScale = new Vector2(image.width * scale, image.height * scale);
+
+      ctx.drawImage(
+        image,
+        this.x * scale + xOffset - imageScale.x / 2,
+        this.y * scale + yOffset - imageScale.y / 2,
+        imageScale.x,
+        imageScale.y,
+      );
+
+      return Result.success();
+    }
+
     // console.warn(this.name, 'is not supported for drawing');
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 1;
