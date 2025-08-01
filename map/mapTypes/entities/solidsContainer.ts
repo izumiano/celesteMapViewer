@@ -75,10 +75,10 @@ export default class SolidsContainer extends Actor {
     return Result.success(canvas);
   }
 
-  async getSolidsCanvas(
+  getSolidsCanvas(
     tiles: TileMatrix,
     abortController: AbortController,
-  ): Promise<Result<HTMLCanvasElement | 'pending'>> {
+  ): Result<HTMLCanvasElement | 'pending'> {
     if (this.renderedTexture) {
       return Result.success(this.renderedTexture);
     }
@@ -102,10 +102,7 @@ export default class SolidsContainer extends Actor {
     scale: number,
     abortController: AbortController,
   ) {
-    const canvasResult = await this.getSolidsCanvas(
-      this.tiles,
-      abortController,
-    );
+    const canvasResult = this.getSolidsCanvas(this.tiles, abortController);
     if (canvasResult.isFailure) {
       return Result.failure(canvasResult.failure);
     }
