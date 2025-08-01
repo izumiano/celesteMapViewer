@@ -3,7 +3,7 @@ const imageDir = window.location + 'assets/';
 export default class Sprite {
   static #images: Map<string, HTMLImageElement | ImageBitmap> = new Map();
 
-  static async #loadImage(path: string) {
+  static async loadImage(path: string) {
     if (this.#images.has(path)) {
       // console.error(path, 'already exists');
       return this.#images.get(path)!;
@@ -41,11 +41,11 @@ export default class Sprite {
     let image: ImageBitmap | HTMLImageElement | undefined = spriteData.image;
     if (!image) {
       try {
-        image = await this.#loadImage(path);
+        image = await this.loadImage(path);
       } catch (ex) {
         console.warn(ex);
         if (spriteData.defaultPath) {
-          image = await this.#loadImage(spriteData.defaultPath);
+          image = await this.loadImage(spriteData.defaultPath);
         }
       }
     }

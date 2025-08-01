@@ -33,3 +33,7 @@ export function onResize(
   const resizeObserver = new ResizeObserver(async () => await callback());
   resizeObserver.observe(element);
 }
+
+export function addLeadingZeroes(val: number, totalDigits: number) {
+  return (Math.pow(10, totalDigits) + val).toString().slice(1); // (123, 4), 10^4 + 123 = 10123
+}
