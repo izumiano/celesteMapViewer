@@ -7,14 +7,20 @@ import {Entity} from './entity.js';
 import NinePatch from '../rendering/ninePatch.js';
 import {drawImageBrightness} from '../rendering/utils.js';
 
-const path = 'zipMover/block';
-const lightPath = 'zipMover/light';
-const nodeCogPath = 'zipMover/cog';
-
-const innerCogCount = 11;
+const blockPath = 'zipMover/$/block';
+const lightPath = 'zipMover/$/light';
+const nodeCogPath = 'zipMover/$/cog';
 
 const ropeColor = '#663931';
 const ropeLightColor = '#9b6157';
+
+const innerCogPath = 'zipMover/$/innercog';
+
+type Theme = 'Normal' | 'Moon';
+
+function getRealPath(path: string, theme: Theme) {
+  return path.replace('$', theme);
+}
 
 export class ZipMoverPath extends Entity {
   private halfWidth: number;
@@ -22,6 +28,8 @@ export class ZipMoverPath extends Entity {
 
   private from: Vector2;
   private to: Vector2;
+
+  private theme: Theme;
 
   constructor(entity: any, zipMover: ZipMover) {
     super(entity, {depth: 5000, noPath: true});
@@ -39,10 +47,12 @@ export class ZipMoverPath extends Entity {
       zipMover.y + this.halfHeight,
     );
     this.to = new Vector2(this.x + this.halfWidth, this.y + this.halfHeight);
+
+    this.theme = zipMover.theme;
   }
 
   async loadSprites() {
-    await Sprite.add({path: nodeCogPath});
+    await Sprite.add({path: getRealPath(nodeCogPath, this.theme)});
   }
 
   drawNodeCog(
@@ -53,7 +63,7 @@ export class ZipMoverPath extends Entity {
     cogOffset: Vector2,
     darken: boolean = false,
   ) {
-    const nodeCogImg = Sprite.getImage(nodeCogPath);
+    const nodeCogImg = Sprite.getImage(getRealPath(nodeCogPath, this.theme));
 
     const centerNodeX =
       this.x + this.halfWidth - nodeCogImg.width / 2 + cogOffset.x;
@@ -170,6 +180,9 @@ export default class ZipMover extends Entity {
   declare width: number;
   declare height: number;
 
+  theme: Theme;
+  innerCogCount: number;
+
   renderedTexture: HTMLCanvasElement | 'pending' | undefined;
 
   private ninePatch: NinePatch;
@@ -177,23 +190,39 @@ export default class ZipMover extends Entity {
   constructor(entity: any) {
     super(entity, {depth: -9999, noPath: true});
 
+    this.theme = entity.theme ?? 'Normal';
+    this.innerCogCount = this.getInnerCogCount(this.theme);
+
     this.ninePatch = new NinePatch(
       this.width / CelesteMap.tileMultiplier,
       this.height / CelesteMap.tileMultiplier,
-      path,
+      getRealPath(blockPath, this.theme),
     );
+  }
+
+  getInnerCogCount(theme: Theme) {
+    switch (theme) {
+      case 'Normal':
+        return 12;
+      case 'Moon':
+        return 7;
+    }
   }
 
   async loadSprites() {
     await Sprite.add({
-      path: lightPath,
+      path: getRealPath(lightPath, this.theme),
     });
 
-    for (let i = 0; i < innerCogCount; i++) {
-      await Sprite.add({path: `zipMover/innercog${addLeadingZeroes(i, 2)}`});
+    for (let i = 0; i < this.innerCogCount; i++) {
+      await Sprite.add({
+        path: `${getRealPath(innerCogPath, this.theme)}${addLeadingZeroes(i, 2)}`,
+      });
     }
 
-    const fullImage = await Sprite.loadImage(path);
+    const fullImage = await Sprite.loadImage(
+      getRealPath(blockPath, this.theme),
+    );
 
     for (let y = 0; y < 3; y++) {
       for (let x = 0; x < 3; x++) {
@@ -214,7 +243,7 @@ export default class ZipMover extends Entity {
   }
 
   private getPathFromSpriteCoordsAt(x: number, y: number) {
-    return `zipMover/block:${x},${y}`;
+    return `${getRealPath(blockPath, this.theme)}:${x},${y}`;
   }
 
   private mod(x: number, m: number) {
@@ -235,8 +264,15 @@ export default class ZipMover extends Entity {
 
     ctx.imageSmoothingEnabled = false;
 
+    const moonOffset = this.theme === 'Moon' ? 2 : 0;
+
     ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, this.width + 2, this.height + 2);
+    ctx.fillRect(
+      moonOffset,
+      moonOffset,
+      this.width + 2 - moonOffset * 2,
+      this.height + 2 - moonOffset * 2,
+    );
 
     let num = 1;
     let num2 = 0;
@@ -244,10 +280,10 @@ export default class ZipMover extends Entity {
       const num3 = num;
       for (let j = 4; j <= this.width - 4; j += 8) {
         const index = Math.floor(
-          this.mod(num2 / (Math.PI / 2), 1) * innerCogCount,
+          this.mod(num2 / (Math.PI / 2), 1) * this.innerCogCount,
         );
         const mTexture = Sprite.getImage(
-          `zipMover/innercog${addLeadingZeroes(index, 2)}`,
+          `${getRealPath(innerCogPath, this.theme)}${addLeadingZeroes(index, 2)}`,
         );
         const rectangle = {
           x: 0,
@@ -296,7 +332,7 @@ export default class ZipMover extends Entity {
 
     this.ninePatch.draw(ctx, new Vector2(1, 1));
 
-    const lightImage = Sprite.getImage(lightPath);
+    const lightImage = Sprite.getImage(getRealPath(lightPath, this.theme));
 
     const imageScale = new Vector2(lightImage.width, lightImage.height);
 
