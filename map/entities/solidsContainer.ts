@@ -1,8 +1,8 @@
-import Result from '../../../utils/result.js';
-import {TileInfo, Tileset} from '../../rendering/tileset.js';
-import {CelesteMap} from '../celesteMap.js';
-import {Level} from '../level.js';
-import {TileMatrix} from '../tileMatrix.js';
+import Result from '../../utils/result.js';
+import {TileInfo, Tileset} from '../rendering/tileset.js';
+import {CelesteMap} from '../mapTypes/celesteMap.js';
+import {Level} from '../mapTypes/level.js';
+import {TileMatrix} from '../mapTypes/tileMatrix.js';
 import Actor from './actor.js';
 
 export default class SolidsContainer extends Actor {

@@ -1,8 +1,8 @@
 import {dialogKeyify} from '../../utils/utils.js';
-import Actor from './entities/actor.js';
-import EntityFactory from './entities/entityFactory.js';
-import SolidsContainer from './entities/solidsContainer.js';
-import SpawnPoint from './entities/spawnPoint.js';
+import Actor from '../entities/actor.js';
+import EntityFactory from '../entities/entityFactory.js';
+import SolidsContainer from '../entities/solidsContainer.js';
+import SpawnPoint from '../entities/spawnPoint.js';
 import {TileMatrix} from './tileMatrix.js';
 
 export class Level {

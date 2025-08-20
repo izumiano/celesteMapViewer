@@ -1,6 +1,6 @@
-import Result from '../../../utils/result.js';
-import Sprite from '../../rendering/sprite.js';
-import {Vector2} from '../../utils/vector2.js';
+import Result from '../../utils/result.js';
+import Sprite from '../rendering/sprite.js';
+import {Vector2} from '../utils/vector2.js';
 import Actor from './actor.js';
 
 export class Entity extends Actor {

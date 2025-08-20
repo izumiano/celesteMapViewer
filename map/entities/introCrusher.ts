@@ -1,7 +1,7 @@
-import Result from '../../../utils/result.js';
-import {Tileset} from '../../rendering/tileset.js';
-import {CelesteMap} from '../celesteMap.js';
-import {Tile, TileMatrix} from '../tileMatrix.js';
+import Result from '../../utils/result.js';
+import {Tileset} from '../rendering/tileset.js';
+import {CelesteMap} from '../mapTypes/celesteMap.js';
+import {Tile, TileMatrix} from '../mapTypes/tileMatrix.js';
 import {Entity} from './entity.js';
 import SolidsContainer from './solidsContainer.js';
 

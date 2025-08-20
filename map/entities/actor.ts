@@ -1,4 +1,4 @@
-import Result from '../../../utils/result.js';
+import Result from '../../utils/result.js';
 
 export default class Actor {
   depth: number;

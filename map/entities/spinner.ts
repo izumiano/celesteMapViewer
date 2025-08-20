@@ -1,4 +1,4 @@
-import {getRandomInt} from '../../../utils/math.js';
+import {getRandomInt} from '../../utils/math.js';
 import {Entity} from './entity.js';
 
 type SpinnerColor = 'blue' | 'core' | 'purple' | 'rainbow' | 'red';

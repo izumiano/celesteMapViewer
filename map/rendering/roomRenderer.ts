@@ -1,6 +1,6 @@
 import Result from '../../utils/result.js';
 import {CelesteMap} from '../mapTypes/celesteMap.js';
-import {Entity} from '../mapTypes/entities/entity.js';
+import {Entity} from '../entities/entity.js';
 import {Level} from '../mapTypes/level.js';
 import {TileMatrix} from '../mapTypes/tileMatrix.js';
 import {Bounds} from '../utils/bounds.js';

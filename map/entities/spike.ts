@@ -1,7 +1,7 @@
-import Result from '../../../utils/result.js';
-import Sprite from '../../rendering/sprite.js';
-import {Vector2} from '../../utils/vector2.js';
-import {CelesteMap} from '../celesteMap.js';
+import Result from '../../utils/result.js';
+import Sprite from '../rendering/sprite.js';
+import {Vector2} from '../utils/vector2.js';
+import {CelesteMap} from '../mapTypes/celesteMap.js';
 import {Entity} from './entity.js';
 
 export enum Direction {
