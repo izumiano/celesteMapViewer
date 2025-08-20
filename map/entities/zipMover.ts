@@ -225,8 +225,8 @@ export default class ZipMover extends Entity {
     abortController: AbortController,
   ): Promise<Result<HTMLCanvasElement>> {
     const canvas = document.createElement('canvas');
-    canvas.width = this.width;
-    canvas.height = this.height;
+    canvas.width = this.width + 2;
+    canvas.height = this.height + 2;
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       console.error('ctx was undefined');
@@ -236,7 +236,7 @@ export default class ZipMover extends Entity {
     ctx.imageSmoothingEnabled = false;
 
     ctx.fillStyle = 'black';
-    ctx.fillRect(0, 0, this.width, this.height);
+    ctx.fillRect(0, 0, this.width + 2, this.height + 2);
 
     let num = 1;
     let num2 = 0;
@@ -280,8 +280,8 @@ export default class ZipMover extends Entity {
           ctx,
           mTexture,
           new Vector2(
-            j + zero.x - mTexture.width / 2 + drawOffset.x,
-            i + zero.y - mTexture.height / 2 + drawOffset.y,
+            j + zero.x - mTexture.width / 2 + drawOffset.x + 1,
+            i + zero.y - mTexture.height / 2 + drawOffset.y + 1,
           ),
           1,
           num < 0 ? 0.5 : 1,
@@ -294,7 +294,7 @@ export default class ZipMover extends Entity {
       }
     }
 
-    this.ninePatch.draw(ctx);
+    this.ninePatch.draw(ctx, new Vector2(1, 1));
 
     const lightImage = Sprite.getImage(lightPath);
 
@@ -302,8 +302,8 @@ export default class ZipMover extends Entity {
 
     ctx.drawImage(
       lightImage,
-      this.width / 2 - imageScale.x / 2,
-      0,
+      this.width / 2 - imageScale.x / 2 + 1,
+      1,
       imageScale.x,
       imageScale.y,
     );
@@ -349,14 +349,13 @@ export default class ZipMover extends Entity {
     try {
       ctx.drawImage(
         canvas,
-        this.x * scale + xOffset,
-        this.y * scale + yOffset,
+        (this.x - 1) * scale + xOffset,
+        (this.y - 1) * scale + yOffset,
         canvas.width * scale,
         canvas.height * scale,
       );
     } catch (ex) {
       const err = ex as Error;
-      console.error(ex);
       if (
         err.name !== 'InvalidStateError' ||
         err.message !==

@@ -34,7 +34,7 @@ export default class NinePatch {
     return `${this.spritePath}:${spriteX},${spriteY}`;
   }
 
-  draw(ctx: CanvasRenderingContext2D) {
+  draw(ctx: CanvasRenderingContext2D, offset: Vector2) {
     for (let yW = 0; yW < this.tileHeight; yW++) {
       for (let xW = 0; xW < this.tileWidth; xW++) {
         const image = Sprite.getImage(this.getPathFromRealCoordsAt(xW, yW));
@@ -43,8 +43,8 @@ export default class NinePatch {
 
         ctx.drawImage(
           image,
-          xW * CelesteMap.tileMultiplier,
-          yW * CelesteMap.tileMultiplier,
+          xW * CelesteMap.tileMultiplier + offset.x,
+          yW * CelesteMap.tileMultiplier + offset.y,
           imageScale.x,
           imageScale.y,
         );
