@@ -5,6 +5,7 @@ import {Vector2} from '../utils/vector2.js';
 import {CelesteMap} from '../mapTypes/celesteMap.js';
 import {Entity} from './entity.js';
 import NinePatch from '../rendering/ninePatch.js';
+import {drawImageBrightness} from '../rendering/utils.js';
 
 const path = 'zipMover/block';
 const lightPath = 'zipMover/light';
@@ -12,11 +13,162 @@ const nodeCogPath = 'zipMover/cog';
 
 const innerCogCount = 11;
 
+const ropeColor = '#663931';
+const ropeLightColor = '#9b6157';
+
+export class ZipMoverPath extends Entity {
+  private halfWidth: number;
+  private halfHeight: number;
+
+  private from: Vector2;
+  private to: Vector2;
+
+  constructor(entity: any, zipMover: ZipMover) {
+    super(entity, {depth: 5000, noPath: true});
+    let node = entity.__children.find((child: any) => {
+      return child.__name === 'node';
+    });
+    this.x = node.x;
+    this.y = node.y;
+
+    this.halfWidth = Math.floor(zipMover.width / 2);
+    this.halfHeight = Math.floor(zipMover.height / 2);
+
+    this.from = new Vector2(
+      zipMover.x + this.halfWidth,
+      zipMover.y + this.halfHeight,
+    );
+    this.to = new Vector2(this.x + this.halfWidth, this.y + this.halfHeight);
+  }
+
+  async loadSprites() {
+    await Sprite.add({path: nodeCogPath});
+  }
+
+  drawNodeCog(
+    ctx: CanvasRenderingContext2D,
+    xOffset: number,
+    yOffset: number,
+    scale: number,
+    cogOffset: Vector2,
+    darken: boolean = false,
+  ) {
+    const nodeCogImg = Sprite.getImage(nodeCogPath);
+
+    const centerNodeX =
+      this.x + this.halfWidth - nodeCogImg.width / 2 + cogOffset.x;
+    const centerNodeY =
+      this.y + this.halfHeight - nodeCogImg.height / 2 + cogOffset.y;
+
+    drawImageBrightness(
+      ctx,
+      nodeCogImg,
+      new Vector2(
+        Math.floor(centerNodeX * scale + xOffset),
+        Math.floor(centerNodeY * scale + yOffset),
+      ),
+      scale,
+      darken ? 0 : 1,
+    );
+  }
+
+  private drawLine(
+    ctx: CanvasRenderingContext2D,
+    scale: number,
+    offset: Vector2,
+    from: Vector2,
+    to: Vector2,
+    color: string = 'red',
+  ) {
+    from = from.multiply(scale).add(new Vector2(offset.x, offset.y));
+    to = to.multiply(scale).add(new Vector2(offset.x, offset.y));
+
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = scale;
+    ctx.moveTo(Math.floor(from.x), Math.floor(from.y)); // Offset by 0.5 for crisp 1px line
+    ctx.lineTo(Math.floor(to.x), Math.floor(to.y));
+    ctx.stroke();
+  }
+
+  private drawCogs(
+    ctx: CanvasRenderingContext2D,
+    xOffset: number,
+    yOffset: number,
+    scale: number,
+    cogOffset: Vector2,
+    color: string | null = null,
+  ) {
+    const levelOffset = new Vector2(xOffset, yOffset);
+
+    const vector = new Vector2(
+      this.to.x - this.from.x,
+      this.to.y - this.from.y,
+    ).safeNormalize();
+    const vector2 = vector.perpendicular().multiply(4);
+    const vector3 = vector.perpendicular().multiply(-4);
+
+    this.drawLine(
+      ctx,
+      scale,
+      levelOffset,
+      this.from.add(vector2).add(cogOffset),
+      this.to.add(vector2).add(cogOffset),
+      color ?? ropeColor,
+    );
+    this.drawLine(
+      ctx,
+      scale,
+      levelOffset,
+      this.from.add(vector3).add(cogOffset),
+      this.to.add(vector3).add(cogOffset),
+      color ?? ropeColor,
+    );
+    for (let num = 4; num < this.to.subtract(this.from).magnitude(); num += 4) {
+      const vector4 = this.from
+        .add(vector2)
+        .add(vector.perpendicular())
+        .add(vector.multiply(num));
+      const vector5 = this.to
+        .add(vector.perpendicular().multiply(-5))
+        .subtract(vector.multiply(num));
+      this.drawLine(
+        ctx,
+        scale,
+        levelOffset,
+        vector4.add(cogOffset),
+        vector4.add(vector.multiply(2)).add(cogOffset),
+        color ?? ropeLightColor,
+      );
+      this.drawLine(
+        ctx,
+        scale,
+        levelOffset,
+        vector5.add(cogOffset),
+        vector5.subtract(vector.multiply(2)).add(cogOffset),
+        color ?? ropeLightColor,
+      );
+    }
+    this.drawNodeCog(ctx, xOffset, yOffset, scale, cogOffset, color !== null);
+  }
+
+  async draw(
+    ctx: CanvasRenderingContext2D,
+    xOffset: number,
+    yOffset: number,
+    scale: number,
+    abortController: AbortController,
+  ) {
+    this.drawCogs(ctx, xOffset, yOffset, scale, new Vector2(0, 1), 'black');
+    this.drawCogs(ctx, xOffset, yOffset, scale, new Vector2(0, 0));
+
+    return Result.success();
+  }
+}
+
 export default class ZipMover extends Entity {
   declare width: number;
   declare height: number;
-
-  private node: Vector2;
 
   renderedTexture: HTMLCanvasElement | 'pending' | undefined;
 
@@ -24,10 +176,6 @@ export default class ZipMover extends Entity {
 
   constructor(entity: any) {
     super(entity, {depth: -9999, noPath: true});
-    let node = entity.__children.find((child: any) => {
-      return child.__name === 'node';
-    });
-    this.node = new Vector2(node.x, node.y);
 
     this.ninePatch = new NinePatch(
       this.width / CelesteMap.tileMultiplier,
@@ -40,7 +188,6 @@ export default class ZipMover extends Entity {
     await Sprite.add({
       path: lightPath,
     });
-    await Sprite.add({path: nodeCogPath});
 
     for (let i = 0; i < innerCogCount; i++) {
       await Sprite.add({path: `zipMover/innercog${addLeadingZeroes(i, 2)}`});
@@ -129,13 +276,15 @@ export default class ZipMover extends Entity {
           -Math.min(rectangle.x, 0),
           -Math.min(rectangle.y, 0),
         );
-        ctx.filter = `brightness(${num < 0 ? 50 : 100}%)`;
-        ctx.drawImage(
+        drawImageBrightness(
+          ctx,
           mTexture,
-          j + zero.x - mTexture.width / 2 + drawOffset.x,
-          i + zero.y - mTexture.height / 2 + drawOffset.y,
-          mTexture.width,
-          mTexture.height,
+          new Vector2(
+            j + zero.x - mTexture.width / 2 + drawOffset.x,
+            i + zero.y - mTexture.height / 2 + drawOffset.y,
+          ),
+          1,
+          num < 0 ? 0.5 : 1,
         );
         num = -num;
         num2 += Math.PI / 3;
@@ -144,8 +293,6 @@ export default class ZipMover extends Entity {
         num = -num;
       }
     }
-
-    ctx.filter = 'brightness(100%)';
 
     this.ninePatch.draw(ctx);
 
@@ -199,21 +346,7 @@ export default class ZipMover extends Entity {
       return Result.success();
     }
 
-    const nodeCogImg = Sprite.getImage(nodeCogPath);
-
     try {
-      const halfWidth = Math.floor(this.width / 2);
-      const halfHeight = Math.floor(this.height / 2);
-      const centerNodeX = this.node.x + halfWidth - nodeCogImg.width / 2;
-      const centerNodeY = this.node.y + halfHeight - nodeCogImg.height / 2;
-      ctx.drawImage(
-        nodeCogImg,
-        Math.floor(centerNodeX * scale + xOffset),
-        Math.floor(centerNodeY * scale + yOffset),
-        nodeCogImg.width * scale,
-        nodeCogImg.height * scale,
-      );
-
       ctx.drawImage(
         canvas,
         this.x * scale + xOffset,

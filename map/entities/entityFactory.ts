@@ -5,7 +5,7 @@ import IntroCrusher from './introCrusher.js';
 import SpawnPoint from './spawnPoint.js';
 import Spike, {Direction} from './spike.js';
 import Spinner from './spinner.js';
-import ZipMover from './zipMover.js';
+import ZipMover, {ZipMoverPath} from './zipMover.js';
 
 export default class EntityFactory {
   entities: Actor[];
@@ -48,7 +48,9 @@ export default class EntityFactory {
           ret.push(new Refill(entity));
           break;
         case 'zipMover':
-          ret.push(new ZipMover(entity));
+          const zipMover = new ZipMover(entity);
+          ret.push(zipMover);
+          ret.push(new ZipMoverPath(entity, zipMover));
           break;
         default:
           console.warn(`Missing type for entity ${entity.__name}`);
